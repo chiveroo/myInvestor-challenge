@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { SortIcon } from '@/components/atoms/SortIcon'
 import type { SortField, SortState } from '@/types'
 
@@ -7,10 +7,11 @@ interface SortableHeaderProps {
   field: SortField
   currentSort: SortState | null
   onSort: (field: SortField) => void
-  align?: 'left' | 'right'
+  align?: 'left' | 'center' | 'right'
+  sticky?: 'left' | 'right'
 }
 
-const Th = styled.th<{ $align: 'left' | 'right' }>`
+const Th = styled.th<{ $align: 'left' | 'center' | 'right'; $sticky?: 'left' | 'right' }>`
   padding: ${({ theme }) => theme.spacing['3']} ${({ theme }) => theme.spacing['4']};
   text-align: ${({ $align }) => $align};
   font-size: ${({ theme }) => theme.typography.fontSize.xs};
@@ -18,6 +19,25 @@ const Th = styled.th<{ $align: 'left' | 'right' }>`
   color: ${({ theme }) => theme.colors.textSecondary};
   white-space: nowrap;
   user-select: none;
+
+  ${({ $sticky, theme }) =>
+    $sticky === 'left' &&
+    css`
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: ${theme.colors.backgroundSubtle};
+    `}
+
+  ${({ $sticky, theme }) =>
+    $sticky === 'right' &&
+    css`
+      position: sticky;
+      right: 0;
+      z-index: 2;
+      background: ${theme.colors.backgroundSubtle};
+      box-shadow: inset ${theme.borderWidth.base} 0 0 ${theme.colors.border};
+    `}
 `
 
 const SortButton = styled.button<{ $active: boolean }>`
@@ -43,13 +63,13 @@ const SortButton = styled.button<{ $active: boolean }>`
   }
 `
 
-export function SortableHeader({ label, field, currentSort, onSort, align = 'left' }: SortableHeaderProps) {
+export function SortableHeader({ label, field, currentSort, onSort, align = 'left', sticky }: SortableHeaderProps) {
   const isActive = currentSort?.field === field
   const direction = isActive ? currentSort.direction : null
   const ariaSort = isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'
 
   return (
-    <Th scope="col" $align={align} aria-sort={ariaSort}>
+    <Th scope="col" $align={align} $sticky={sticky} aria-sort={ariaSort}>
       <SortButton
         type="button"
         $active={isActive}

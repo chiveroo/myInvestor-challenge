@@ -5,6 +5,7 @@ export const theme = {
 
     background: '#FFFFFF',
     backgroundSubtle: '#F5F5F7',
+    backgroundHero: '#ecf5ff',
     backgroundOverlay: 'rgba(0, 0, 0, 0.4)',
 
     text: '#1A1A1A',
@@ -18,6 +19,12 @@ export const theme = {
     positive: '#43AE96',
     negative: '#E84040',
     neutral: '#9E9E9E',
+
+    toast: {
+      info:    { bg: '#EBF0FB', text: '#2D5CC2', border: '#BDCEF5' },
+      success: { bg: '#EBF7F3', text: '#1E8C5A', border: '#B5E8D0' },
+      error:   { bg: '#FDF0F0', text: '#CC2A2A', border: '#F5C5C5' },
+    },
 
     // Category badge colors — WCAG AA contrast verified
     category: {
@@ -73,13 +80,19 @@ export const theme = {
   },
 
   sizes: {
-    dropdownMinWidth: '10rem', // 160px
+    dropdownMinWidth: '10rem',
+    tableMinWidth: '40rem',
+    sidebarWidth: '14rem',
+    bottomNavHeight: '4.5rem',
+    logoHeight: '1.75rem',
+    contentMaxWidth: '64rem',
   },
 
   radii: {
     sm: '4px',
     md: '8px',
     lg: '12px',
+    xl: '1rem',
     full: '9999px',
   },
 
@@ -114,6 +127,7 @@ export const theme = {
   },
 
   zIndex: {
+    nav: 50,
     dropdown: 100,
     modal: 200,
     toast: 300,

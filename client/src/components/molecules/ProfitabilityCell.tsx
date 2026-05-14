@@ -28,6 +28,12 @@ const Cell = styled.span<{ $sentiment: Sentiment }>`
   }};
 `
 
+const IconWrapper = styled.span`
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+`
+
 export function ProfitabilityCell({ value }: ProfitabilityCellProps) {
   const theme = useTheme()
   const sentiment = getSentiment(value)
@@ -35,8 +41,12 @@ export function ProfitabilityCell({ value }: ProfitabilityCellProps) {
 
   return (
     <Cell $sentiment={sentiment}>
-      {sentiment === 'positive' && <ArrowUp size={iconSize} aria-hidden="true" />}
-      {sentiment === 'negative' && <ArrowDown size={iconSize} aria-hidden="true" />}
+      {sentiment === 'positive' && (
+        <IconWrapper><ArrowUp size={iconSize} aria-hidden="true" /></IconWrapper>
+      )}
+      {sentiment === 'negative' && (
+        <IconWrapper><ArrowDown size={iconSize} aria-hidden="true" /></IconWrapper>
+      )}
       {formatPercent(value)}
     </Cell>
   )

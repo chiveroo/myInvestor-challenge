@@ -18,6 +18,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
@@ -25,5 +26,25 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    environmentOptions: {
+      jsdom: { url: 'http://localhost' },
+    },
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/test/**',
+        'src/styles/**',
+        'src/main.tsx',
+        'src/App.tsx',                          // entry point — integration/E2E scope
+        'src/components/organisms/AppNav.tsx',  // layout-only, no business logic
+      ],
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 80,
+        lines: 80,
+      },
+    },
   },
 })

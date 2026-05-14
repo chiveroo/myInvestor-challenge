@@ -1,10 +1,17 @@
-import styled from 'styled-components'
-import type { Category } from '@/types'
+import type { Category } from '@/types';
+import styled from 'styled-components';
 
 interface BadgeProps {
-  label: string
-  variant: Category | 'default'
+  label: string;
+  variant: Category | 'default';
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  GLOBAL: 'Global',
+  TECH: 'Tecnología',
+  HEALTH: 'Salud',
+  MONEY_MARKET: 'Monetarios',
+};
 
 const Pill = styled.span<{ $variant: Category | 'default' }>`
   display: inline-flex;
@@ -16,8 +23,9 @@ const Pill = styled.span<{ $variant: Category | 'default' }>`
   white-space: nowrap;
   background-color: ${({ theme, $variant }) => theme.colors.category[$variant].bg};
   color: ${({ theme, $variant }) => theme.colors.category[$variant].text};
-`
+`;
 
 export function Badge({ label, variant }: BadgeProps) {
-  return <Pill $variant={variant}>{label}</Pill>
+  const displayLabel = CATEGORY_LABELS[label] ?? label;
+  return <Pill $variant={variant}>{displayLabel}</Pill>;
 }
