@@ -54,6 +54,7 @@ export const theme = {
 
   spacing: {
     '0': '0',
+    '0.5': '0.125rem',
     '1': '0.25rem',
     '2': '0.5rem',
     '3': '0.75rem',
@@ -84,6 +85,23 @@ export const theme = {
     md: '768px',
     lg: '1024px',
     xl: '1280px',
+  },
+
+  iconSize: {
+    sm: 14,
+    md: 16,
+    lg: 20,
+    xl: 24,
+  },
+
+  transitions: {
+    fast: '150ms ease',
+    normal: '200ms ease',
+  },
+
+  focus: {
+    ringWidth: '2px',
+    ringOffset: '2px',
   },
 
   zIndex: {
