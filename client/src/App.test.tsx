@@ -14,7 +14,7 @@ describe('App navigation', () => {
     const navigation = screen.getAllByRole('navigation', { name: /navegación principal/i })[0]
     await user.click(within(navigation).getByRole('button', { name: 'Cartera' }))
 
-    const portfolioTitle = await screen.findByRole('heading', { name: 'Cartera' })
+    const portfolioTitle = await screen.findByRole('heading', { name: 'Mi Cartera' })
     const fundsTab = screen.getByRole('tab', { name: 'Fondos' })
 
     expect(screen.queryByRole('heading', { name: /detalle de la cartera/i })).not.toBeInTheDocument()
