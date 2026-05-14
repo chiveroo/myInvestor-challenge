@@ -101,7 +101,7 @@ const MobileMenuSlot = styled.div`
   align-items: flex-start;
 `;
 
-function PortfolioMobileRow({ position }: { position: PortfolioPosition }) {
+function PortfolioMobileRow({ position, onSell }: { position: PortfolioPosition; onSell: (position: PortfolioPosition) => void }) {
   const mobileUnitValueLabel = getMobileUnitValueLabel(position);
 
   return (
@@ -123,7 +123,7 @@ function PortfolioMobileRow({ position }: { position: PortfolioPosition }) {
       </MobileValueBlock>
 
       <MobileMenuSlot>
-        <PortfolioActionMenu position={position} />
+        <PortfolioActionMenu position={position} onSell={onSell} />
       </MobileMenuSlot>
     </MobileCard>
   );
@@ -131,13 +131,14 @@ function PortfolioMobileRow({ position }: { position: PortfolioPosition }) {
 
 interface PortfolioMobileListProps {
   positions: PortfolioPosition[];
+  onSell: (position: PortfolioPosition) => void;
 }
 
-export function PortfolioMobileList({ positions }: PortfolioMobileListProps) {
+export function PortfolioMobileList({ positions, onSell }: PortfolioMobileListProps) {
   return (
     <MobileList>
       {positions.map((position) => (
-        <PortfolioMobileRow key={position.id} position={position} />
+        <PortfolioMobileRow key={position.id} position={position} onSell={onSell} />
       ))}
     </MobileList>
   );

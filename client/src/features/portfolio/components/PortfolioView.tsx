@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import styled from 'styled-components';
+import type { PortfolioPosition } from '@/types';
 import { usePortfolio } from '../hooks/usePortfolio';
+import { SellDialog } from './SellDialog';
 import { PortfolioDesktopTable } from './PortfolioDesktopTable';
 import { PortfolioMobileList } from './PortfolioMobileList';
 import { PortfolioEmptyState, PortfolioErrorState, PortfolioSkeleton } from './PortfolioStates';
@@ -23,6 +26,15 @@ const TabPanel = styled.div<{ $stale?: boolean }>`
 
 export function PortfolioView() {
   const { data, isLoading, isError, refetch, isFetching } = usePortfolio();
+  const [selectedPosition, setSelectedPosition] = useState<PortfolioPosition | null>(null);
+
+  function handleSell(position: PortfolioPosition) {
+    setSelectedPosition(position);
+  }
+
+  function handleCloseSellDialog() {
+    setSelectedPosition(null);
+  }
 
   if (isLoading) {
     return (
@@ -71,9 +83,13 @@ export function PortfolioView() {
         aria-labelledby="portfolio-tab-funds"
         $stale={isFetching}
       >
-        <PortfolioDesktopTable positions={data.data} />
-        <PortfolioMobileList positions={data.data} />
+        <PortfolioDesktopTable positions={data.data} onSell={handleSell} />
+        <PortfolioMobileList positions={data.data} onSell={handleSell} />
       </TabPanel>
+
+      {selectedPosition ? (
+        <SellDialog position={selectedPosition} isOpen onClose={handleCloseSellDialog} />
+      ) : null}
     </Section>
   );
 }

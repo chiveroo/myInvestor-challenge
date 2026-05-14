@@ -29,6 +29,10 @@ export const handlers = [
     return HttpResponse.json({ message: 'Compra realizada con éxito' })
   }),
 
+  http.post(`${BASE}/api/funds/:id/sell`, () => {
+    return HttpResponse.json({ message: 'Venta realizada con éxito' })
+  }),
+
   http.get(`${BASE}/api/portfolio`, () => {
     return HttpResponse.json({
       data: mockPortfolio,

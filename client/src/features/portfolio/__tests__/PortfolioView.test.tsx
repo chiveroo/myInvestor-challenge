@@ -94,7 +94,7 @@ describe('PortfolioView', () => {
     expect(within(card).queryByText(/valor por participación/i)).not.toBeInTheDocument()
   })
 
-  it('shows disabled visual actions for each item inside the contextual menu', async () => {
+  it('shows sell enabled and keeps transfer disabled inside the contextual menu', async () => {
     const user = userEvent.setup()
 
     renderWithProviders(<PortfolioView />)
@@ -104,9 +104,9 @@ describe('PortfolioView', () => {
 
     const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
 
-    expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeDisabled()
+    expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeEnabled()
     expect(within(menu).getByRole('menuitem', { name: 'Traspasar' })).toBeDisabled()
-    expect(within(menu).getByText(/disponible próximamente/i)).toBeInTheDocument()
+    expect(within(menu).getByText(/traspasar estará disponible próximamente/i)).toBeInTheDocument()
   })
 
   it('shows error state with retry action when the request fails', async () => {
@@ -126,7 +126,7 @@ describe('PortfolioView', () => {
     expect(await screen.findByText(/aún no tienes posiciones en fondos/i)).toBeInTheDocument()
   })
 
-  it('opens a contextual actions menu from the mobile card trigger', async () => {
+  it('opens the sell dialog from the mobile card contextual menu while keeping transfer disabled', async () => {
     const user = userEvent.setup()
 
     renderWithProviders(<PortfolioView />)
@@ -140,8 +140,12 @@ describe('PortfolioView', () => {
 
     const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
 
-    expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeDisabled()
+    expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeEnabled()
     expect(within(menu).getByRole('menuitem', { name: 'Traspasar' })).toBeDisabled()
+
+    await user.click(within(menu).getByRole('menuitem', { name: 'Vender' }))
+
+    expect(await screen.findByRole('dialog', { name: /vender fondo/i })).toBeInTheDocument()
   })
 
   it('renders each mobile position with left name, right value block, and far-right menu', async () => {

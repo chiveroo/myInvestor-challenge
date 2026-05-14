@@ -5,7 +5,7 @@ import { formatMoney } from '@/utils/format';
 const ES_LOCALE = 'es-ES';
 
 export const PORTFOLIO_ACTIONS_HELPER =
-  'Disponible próximamente. Estas acciones aún no están operativas.';
+  'Traspasar estará disponible próximamente.';
 
 export function formatQuantity(quantity: number) {
   return new Intl.NumberFormat(ES_LOCALE, {
@@ -52,12 +52,12 @@ export function getMobileUnitValueLabel(position: PortfolioPosition) {
   return formatMoney(unitValue, position.totalValue.currency);
 }
 
-export function getPortfolioActionItems(): ActionsMenuItem[] {
+export function getPortfolioActionItems(onSell: () => void): ActionsMenuItem[] {
   return [
     {
       key: 'sell',
       label: 'Vender',
-      disabled: true,
+      onSelect: onSell,
     },
     {
       key: 'transfer',

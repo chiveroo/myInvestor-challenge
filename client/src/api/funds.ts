@@ -7,7 +7,7 @@ interface GetFundsParams {
   sort?: SortState | null
 }
 
-export async function getFunds({ page, limit, sort }: GetFundsParams): Promise<FundsResponse> {
+export function getFunds({ page, limit, sort }: GetFundsParams): Promise<FundsResponse> {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
@@ -20,8 +20,16 @@ export async function getFunds({ page, limit, sort }: GetFundsParams): Promise<F
   return apiFetch<FundsResponse>(`/api/funds?${params}`)
 }
 
-export async function buyFund(id: string, quantity: number): Promise<{ message: string }> {
+export function buyFund(id: string, quantity: number): Promise<{ message: string }> {
   return apiFetch<{ message: string }>(`/api/funds/${id}/buy`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantity }),
+  })
+}
+
+export function sellFund(id: string, quantity: number): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>(`/api/funds/${id}/sell`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ quantity }),
