@@ -1,32 +1,65 @@
-import { screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ActionsMenu } from '../ActionsMenu'
 import { renderWithProviders } from '@/test/renderWithProviders'
 
 describe('ActionsMenu', () => {
+  const menuItems = [
+    {
+      key: 'buy',
+      label: 'Comprar',
+      onSelect: vi.fn(),
+    },
+    {
+      key: 'sell',
+      label: 'Vender',
+      disabled: true,
+    },
+  ]
+
   it('renders a trigger button with a descriptive accessible label', () => {
-    renderWithProviders(<ActionsMenu fundId="1" fundName="Global Equity Fund" />)
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Global Equity Fund"
+        menuLabel="Menú de acciones para Global Equity Fund"
+        items={menuItems}
+      />
+    )
+
     const trigger = screen.getByRole('button', { name: /acciones para global equity fund/i })
+
     expect(trigger).toBeInTheDocument()
     expect(trigger).toHaveAttribute('aria-haspopup', 'menu')
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('opens the menu when the trigger is clicked', async () => {
+  it('opens the menu with every configured action when the trigger is clicked', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<ActionsMenu fundId="1" fundName="Tech Fund" />)
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Tech Fund"
+        menuLabel="Menú de acciones para Tech Fund"
+        items={menuItems}
+      />
+    )
 
     await user.click(screen.getByRole('button', { name: /acciones para tech fund/i }))
 
-    expect(screen.getByRole('menu')).toBeInTheDocument()
+    expect(screen.getByRole('menu', { name: /menú de acciones para tech fund/i })).toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: /comprar/i })).toBeInTheDocument()
-    expect(screen.queryByRole('menuitem', { name: /ver detalle/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /vender/i })).toBeDisabled()
   })
 
   it('sets aria-expanded="true" while the menu is open', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<ActionsMenu fundId="1" fundName="Tech Fund" />)
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Tech Fund"
+        menuLabel="Menú de acciones para Tech Fund"
+        items={menuItems}
+      />
+    )
 
     const trigger = screen.getByRole('button', { name: /acciones para tech fund/i })
     await user.click(trigger)
@@ -36,7 +69,13 @@ describe('ActionsMenu', () => {
 
   it('closes the menu when Escape is pressed', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<ActionsMenu fundId="1" fundName="Tech Fund" />)
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Tech Fund"
+        menuLabel="Menú de acciones para Tech Fund"
+        items={menuItems}
+      />
+    )
 
     await user.click(screen.getByRole('button', { name: /acciones para tech fund/i }))
     expect(screen.getByRole('menu')).toBeInTheDocument()
@@ -45,25 +84,89 @@ describe('ActionsMenu', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
-  it('calls onBuy with the fund id when Comprar is clicked', async () => {
-    const onBuy = vi.fn()
+  it('calls onSelect for enabled items when a menu option is clicked', async () => {
+    const onSelect = vi.fn()
     const user = userEvent.setup()
-    renderWithProviders(<ActionsMenu fundId="fund-42" fundName="Test Fund" onBuy={onBuy} />)
+
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Test Fund"
+        menuLabel="Menú de acciones para Test Fund"
+        items={[
+          {
+            key: 'buy',
+            label: 'Comprar',
+            onSelect,
+          },
+        ]}
+      />
+    )
 
     await user.click(screen.getByRole('button', { name: /acciones para test fund/i }))
     await user.click(screen.getByRole('menuitem', { name: /comprar/i }))
 
-    expect(onBuy).toHaveBeenCalledOnce()
-    expect(onBuy).toHaveBeenCalledWith('fund-42')
+    expect(onSelect).toHaveBeenCalledOnce()
   })
 
   it('closes the menu after clicking a menu item', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<ActionsMenu fundId="1" fundName="Test Fund" onBuy={vi.fn()} />)
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Test Fund"
+        menuLabel="Menú de acciones para Test Fund"
+        items={[
+          {
+            key: 'buy',
+            label: 'Comprar',
+            onSelect: vi.fn(),
+          },
+        ]}
+      />
+    )
 
     await user.click(screen.getByRole('button', { name: /acciones para test fund/i }))
     await user.click(screen.getByRole('menuitem', { name: /comprar/i }))
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('renders helper text inside the menu when provided', async () => {
+    const user = userEvent.setup()
+
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Test Fund"
+        menuLabel="Menú de acciones para Test Fund"
+        helperText="Disponible próximamente. Estas acciones aún no están operativas."
+        items={menuItems}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /acciones para test fund/i }))
+
+    expect(screen.getByText(/disponible próximamente/i)).toBeInTheDocument()
+  })
+
+  it('closes the menu when the page scrolls', async () => {
+    const user = userEvent.setup()
+
+    renderWithProviders(
+      <ActionsMenu
+        triggerLabel="Acciones para Scroll Fund"
+        menuLabel="Menú de acciones para Scroll Fund"
+        items={menuItems}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /acciones para scroll fund/i }))
+    expect(screen.getByRole('menu', { name: /menú de acciones para scroll fund/i })).toBeInTheDocument()
+
+    act(() => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: /menú de acciones para scroll fund/i })).not.toBeInTheDocument()
+    })
   })
 })

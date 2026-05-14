@@ -1,4 +1,5 @@
-import { screen, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -6,8 +7,25 @@ import { server } from '@/test/msw/server'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { BuyDialog } from '../components/BuyDialog'
 import { mockFunds } from '@/test/msw/fixtures'
+import { ThemeProvider } from 'styled-components'
+import { theme } from '@/styles/theme'
+import { ToastProvider } from '@/components/organisms/ToastProvider'
+import { portfolioKeys } from '@/features/portfolio/keys'
+import { fundKeys } from '../keys'
 
 const fund = mockFunds[0]!
+
+function renderBuyDialogWithClient(queryClient: QueryClient, onClose = vi.fn()) {
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <ToastProvider>
+          <BuyDialog fund={fund} isOpen onClose={onClose} />
+        </ToastProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  )
+}
 
 describe('BuyDialog', () => {
   it('renders dialog with fund name in title', () => {
@@ -55,6 +73,29 @@ describe('BuyDialog', () => {
     await user.click(screen.getByRole('button', { name: /comprar ahora/i }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
     expect(await screen.findByRole('status')).toHaveTextContent('Orden de compra enviada para Global Equity Fund.')
+  })
+
+  it('invalidates the portfolio list after a successful purchase', async () => {
+    const user = userEvent.setup()
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          gcTime: 0,
+        },
+      },
+    })
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+
+    renderBuyDialogWithClient(queryClient)
+
+    await user.type(screen.getByLabelText(/importe/i), '500')
+    await user.click(screen.getByRole('button', { name: /comprar ahora/i }))
+
+    await waitFor(() => {
+      expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: fundKeys.lists() })
+      expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: portfolioKeys.list() })
+    })
   })
 
   it('shows fund value liquidativo as reference', () => {

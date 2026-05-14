@@ -35,6 +35,17 @@ export interface FundsResponse {
   data: Fund[]
 }
 
+export interface PortfolioPosition {
+  id: string
+  name: string
+  quantity: number
+  totalValue: Amount
+}
+
+export interface PortfolioResponse {
+  data: PortfolioPosition[]
+}
+
 // Sort field matches the server's accepted sort fields
 export type SortField =
   | 'name'
@@ -52,4 +63,3 @@ export interface SortState {
   field: SortField
   direction: SortDirection
 }
-

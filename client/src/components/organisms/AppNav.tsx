@@ -3,16 +3,17 @@ import { useTheme } from 'styled-components'
 import { BarChart2, Wallet } from 'lucide-react'
 import logoUrl from '@/assets/logo.svg'
 
+export type AppView = 'funds' | 'portfolio'
+
 interface NavItem {
   label: string
   icon: React.ComponentType<{ size?: number; 'aria-hidden'?: boolean | 'true' }>
-  href: string
-  active?: boolean
+  view: AppView
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Fondos', icon: BarChart2, href: '#fondos', active: true },
-  { label: 'Cartera', icon: Wallet, href: '#cartera' },
+  { label: 'Fondos', icon: BarChart2, view: 'funds' },
+  { label: 'Cartera', icon: Wallet, view: 'portfolio' },
 ]
 
 // ── Atoms ─────────────────────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ const SidebarLogoWrapper = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing['2']};
 `
 
-const SidebarItem = styled.a<{ $active?: boolean }>`
+const SidebarItem = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing['3']};
@@ -101,7 +102,7 @@ const BottomNav = styled.nav`
   }
 `
 
-const BottomNavItem = styled.a<{ $active?: boolean }>`
+const BottomNavItem = styled.button<{ $active?: boolean }>`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -132,7 +133,12 @@ const BottomNavItem = styled.a<{ $active?: boolean }>`
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function AppNav() {
+interface AppNavProps {
+  currentView: AppView
+  onNavigate: (view: AppView) => void
+}
+
+export function AppNav({ currentView, onNavigate }: AppNavProps) {
   const theme = useTheme()
 
   return (
@@ -141,8 +147,14 @@ export function AppNav() {
         <SidebarLogoWrapper>
           <LogoImg src={logoUrl} alt="myInvestor" />
         </SidebarLogoWrapper>
-        {NAV_ITEMS.map(({ label, icon: Icon, href, active }) => (
-          <SidebarItem key={label} href={href} $active={active}>
+        {NAV_ITEMS.map(({ label, icon: Icon, view }) => (
+          <SidebarItem
+            key={label}
+            type="button"
+            $active={currentView === view}
+            aria-current={currentView === view ? 'page' : undefined}
+            onClick={() => onNavigate(view)}
+          >
             <Icon size={theme.iconSize.md} aria-hidden={true} />
             {label}
           </SidebarItem>
@@ -150,8 +162,14 @@ export function AppNav() {
       </Sidebar>
 
       <BottomNav aria-label="Navegación principal">
-        {NAV_ITEMS.map(({ label, icon: Icon, href, active }) => (
-          <BottomNavItem key={label} href={href} $active={active}>
+        {NAV_ITEMS.map(({ label, icon: Icon, view }) => (
+          <BottomNavItem
+            key={label}
+            type="button"
+            $active={currentView === view}
+            aria-current={currentView === view ? 'page' : undefined}
+            onClick={() => onNavigate(view)}
+          >
             <Icon size={theme.iconSize.lg} aria-hidden={true} />
             {label}
           </BottomNavItem>

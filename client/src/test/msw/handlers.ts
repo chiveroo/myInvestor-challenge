@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import { mockFunds } from './fixtures'
+import { mockFunds, mockPortfolio } from './fixtures'
 
 // MSW intercepts fetch at the Node.js level in jsdom.
 // Relative URLs resolve against jsdom's default origin (http://localhost).
@@ -27,5 +27,11 @@ export const handlers = [
 
   http.post(`${BASE}/api/funds/:id/buy`, () => {
     return HttpResponse.json({ message: 'Compra realizada con éxito' })
+  }),
+
+  http.get(`${BASE}/api/portfolio`, () => {
+    return HttpResponse.json({
+      data: mockPortfolio,
+    })
   }),
 ]

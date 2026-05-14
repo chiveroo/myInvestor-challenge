@@ -11,6 +11,7 @@ import { Button } from '@/components/atoms/Button'
 import { useToast } from '@/hooks/useToast'
 import { buyFund } from '@/api/funds'
 import { fundKeys } from '../keys'
+import { portfolioKeys } from '@/features/portfolio/keys'
 import type { Fund } from '@/types'
 
 // ── Schema ─────────────────────────────────────────────────────────────────────
@@ -76,6 +77,7 @@ export function BuyDialog({ fund, isOpen, onClose }: BuyDialogProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: fundKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: portfolioKeys.list() })
       addToast(`Orden de compra enviada para ${fund.name}.`, 'success')
       resetForm()
       onClose()

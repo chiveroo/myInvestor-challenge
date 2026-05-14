@@ -1,4 +1,4 @@
-import type { Fund } from '@/types'
+import type { Fund, PortfolioPosition } from '@/types'
 
 export const mockFunds: Fund[] = [
   {
@@ -24,5 +24,26 @@ export const mockFunds: Fund[] = [
     value: { amount: 95.78, currency: 'EUR' },
     category: 'HEALTH',
     profitability: { YTD: 0.03, oneYear: 0.09, threeYears: 0.28, fiveYears: 0.41 },
+  },
+]
+
+export const mockPortfolio: PortfolioPosition[] = [
+  {
+    id: 'portfolio-2',
+    name: 'Renta Variable Global',
+    quantity: 14.24,
+    totalValue: { amount: 4250.18, currency: 'EUR' },
+  },
+  {
+    id: 'portfolio-1',
+    name: 'Alpha Strategy Fund',
+    quantity: 8.5,
+    totalValue: { amount: 2100, currency: 'EUR' },
+  },
+  {
+    id: 'portfolio-3',
+    name: 'US Opportunities',
+    quantity: 5.2,
+    totalValue: { amount: 930.4, currency: 'USD' },
   },
 ]
