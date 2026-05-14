@@ -20,6 +20,7 @@ function formatDisplay(value: number): string {
 
 function formatEditable(value: number): string {
   return new Intl.NumberFormat('es-ES', {
+    useGrouping: false,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(value)
@@ -34,7 +35,9 @@ function parseAmount(raw: string): number | undefined {
 
   const normalized = clean.includes(',')
     ? clean.replace(/\./g, '').replace(',', '.')
-    : clean
+    : clean.includes('.') && /\.\d{1,2}$/.test(clean)
+      ? clean
+      : clean.replace(/\./g, '')
 
   const n = Number.parseFloat(normalized)
   return Number.isNaN(n) ? undefined : n

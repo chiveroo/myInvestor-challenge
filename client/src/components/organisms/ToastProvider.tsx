@@ -7,13 +7,13 @@ import type { AddToast, ToastItem, ToastVariant } from '@/context/toastContext'
 // ── Styles ────────────────────────────────────────────────────────────────────
 
 const slideIn = keyframes`
-  from { opacity: 0; transform: translateY(0.5rem); }
+  from { opacity: 0; transform: translateY(-0.5rem); }
   to   { opacity: 1; transform: translateY(0); }
 `
 
 const ToastList = styled.ol`
   position: fixed;
-  bottom: calc(${({ theme }) => theme.sizes.bottomNavHeight} + ${({ theme }) => theme.spacing['4']});
+  top: calc(env(safe-area-inset-top, 0px) + ${({ theme }) => theme.spacing['4']});
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -26,11 +26,9 @@ const ToastList = styled.ol`
   max-width: calc(100vw - ${({ theme }) => theme.spacing['8']});
 
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-    bottom: ${({ theme }) => theme.spacing['6']};
-    left: calc(
-      ${({ theme }) => theme.spacing['4']} + ${({ theme }) => theme.sizes.sidebarWidth} +
-        ${({ theme }) => theme.spacing['4']}
-    );
+    top: ${({ theme }) => theme.spacing['6']};
+    right: ${({ theme }) => theme.spacing['6']};
+    left: auto;
     transform: none;
   }
 `

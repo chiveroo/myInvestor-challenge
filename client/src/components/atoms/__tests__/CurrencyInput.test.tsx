@@ -33,6 +33,33 @@ describe('CurrencyInput', () => {
     expect(input).toHaveValue('1.500,00 €')
   })
 
+  it('keeps large values editable without thousands separators while focused', async () => {
+    const onValueChange = vi.fn()
+    const user = userEvent.setup()
+
+    render(<CurrencyInput label="Importe" name="amount" value={100000} onValueChange={onValueChange} />, {
+      wrapper: Wrapper,
+    })
+
+    const input = screen.getByLabelText('Importe')
+    expect(input).toHaveValue('100.000,00 €')
+
+    await user.click(input)
+    expect(input).toHaveValue('100000')
+  })
+
+  it('parses pasted es-ES grouped values as thousands, not decimals', () => {
+    const onValueChange = vi.fn()
+    render(<CurrencyInput label="Importe" name="amount" onValueChange={onValueChange} />, { wrapper: Wrapper })
+
+    const input = screen.getByLabelText('Importe')
+    fireEvent.change(input, { target: { value: '100.000' } })
+    fireEvent.blur(input)
+
+    expect(onValueChange).toHaveBeenLastCalledWith(100000)
+    expect(input).toHaveValue('100.000,00 €')
+  })
+
   it('clears the visible value when the controlled value resets', async () => {
     const user = userEvent.setup()
 
