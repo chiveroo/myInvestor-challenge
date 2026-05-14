@@ -62,5 +62,22 @@ export const GlobalStyle = createGlobalStyle`
         background: ${({ theme }) => theme.colors.backgroundOverlay};
       }
     }
+
+    /* Keyboard focus indicator — WCAG 2.2 SC 2.4.13 (min 2px, 3:1 contrast) */
+    :focus {
+      outline: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid ${({ theme }) => theme.colors.primary};
+      outline-offset: 2px;
+    }
+
+    /* Smooth scroll only for users who haven't requested reduced motion */
+    @media (prefers-reduced-motion: no-preference) {
+      html {
+        scroll-behavior: smooth;
+      }
+    }
   }
 `
