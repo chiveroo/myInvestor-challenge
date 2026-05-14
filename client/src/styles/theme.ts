@@ -67,6 +67,15 @@ export const theme = {
     '16': '4rem',
   },
 
+  borderWidth: {
+    base: '1px',
+    md: '2px',
+  },
+
+  sizes: {
+    dropdownMinWidth: '10rem', // 160px
+  },
+
   radii: {
     sm: '4px',
     md: '8px',
