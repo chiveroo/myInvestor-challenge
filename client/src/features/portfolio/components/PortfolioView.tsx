@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import type { PortfolioPosition } from '@/types';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { SellDialog } from './SellDialog';
+import { TransferDialog } from './TransferDialog';
 import { PortfolioDesktopTable } from './PortfolioDesktopTable';
 import { PortfolioMobileList } from './PortfolioMobileList';
 import { PortfolioEmptyState, PortfolioErrorState, PortfolioSkeleton } from './PortfolioStates';
@@ -26,14 +27,23 @@ const TabPanel = styled.div<{ $stale?: boolean }>`
 
 export function PortfolioView() {
   const { data, isLoading, isError, refetch, isFetching } = usePortfolio();
-  const [selectedPosition, setSelectedPosition] = useState<PortfolioPosition | null>(null);
+  const [selectedSellPosition, setSelectedSellPosition] = useState<PortfolioPosition | null>(null);
+  const [selectedTransferPosition, setSelectedTransferPosition] = useState<PortfolioPosition | null>(null);
 
   function handleSell(position: PortfolioPosition) {
-    setSelectedPosition(position);
+    setSelectedSellPosition(position);
   }
 
   function handleCloseSellDialog() {
-    setSelectedPosition(null);
+    setSelectedSellPosition(null);
+  }
+
+  function handleTransfer(position: PortfolioPosition) {
+    setSelectedTransferPosition(position);
+  }
+
+  function handleCloseTransferDialog() {
+    setSelectedTransferPosition(null);
   }
 
   if (isLoading) {
@@ -83,12 +93,21 @@ export function PortfolioView() {
         aria-labelledby="portfolio-tab-funds"
         $stale={isFetching}
       >
-        <PortfolioDesktopTable positions={data.data} onSell={handleSell} />
-        <PortfolioMobileList positions={data.data} onSell={handleSell} />
+        <PortfolioDesktopTable positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
+        <PortfolioMobileList positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
       </TabPanel>
 
-      {selectedPosition ? (
-        <SellDialog position={selectedPosition} isOpen onClose={handleCloseSellDialog} />
+      {selectedSellPosition ? (
+        <SellDialog position={selectedSellPosition} isOpen onClose={handleCloseSellDialog} />
+      ) : null}
+
+      {selectedTransferPosition ? (
+        <TransferDialog
+          position={selectedTransferPosition}
+          positions={data.data}
+          isOpen
+          onClose={handleCloseTransferDialog}
+        />
       ) : null}
     </Section>
   );

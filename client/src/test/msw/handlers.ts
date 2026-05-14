@@ -33,6 +33,10 @@ export const handlers = [
     return HttpResponse.json({ message: 'Venta realizada con éxito' })
   }),
 
+  http.post(`${BASE}/api/funds/transfer`, () => {
+    return HttpResponse.json({ message: 'Traspaso realizado con éxito' })
+  }),
+
   http.get(`${BASE}/api/portfolio`, () => {
     return HttpResponse.json({
       data: mockPortfolio,

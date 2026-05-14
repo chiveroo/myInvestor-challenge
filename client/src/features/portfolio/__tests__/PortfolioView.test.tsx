@@ -94,7 +94,7 @@ describe('PortfolioView', () => {
     expect(within(card).queryByText(/valor por participación/i)).not.toBeInTheDocument()
   })
 
-  it('shows sell enabled and keeps transfer disabled inside the contextual menu', async () => {
+  it('shows sell and transfer enabled with icons inside the contextual menu when there is a valid destination', async () => {
     const user = userEvent.setup()
 
     renderWithProviders(<PortfolioView />)
@@ -103,10 +103,14 @@ describe('PortfolioView', () => {
     await user.click(within(firstCard).getByRole('button', { name: /acciones para alpha strategy fund/i }))
 
     const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
+    const sellItem = within(menu).getByRole('menuitem', { name: 'Vender' })
+    const transferItem = within(menu).getByRole('menuitem', { name: 'Traspasar' })
 
-    expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeEnabled()
-    expect(within(menu).getByRole('menuitem', { name: 'Traspasar' })).toBeDisabled()
-    expect(within(menu).getByText(/traspasar estará disponible próximamente/i)).toBeInTheDocument()
+    expect(sellItem).toBeEnabled()
+    expect(transferItem).toBeEnabled()
+    expect(sellItem.querySelector('svg[aria-hidden="true"]')).toBeInTheDocument()
+    expect(transferItem.querySelector('svg[aria-hidden="true"]')).toBeInTheDocument()
+    expect(within(menu).queryByText(/traspasar estará disponible próximamente/i)).not.toBeInTheDocument()
   })
 
   it('shows error state with retry action when the request fails', async () => {
@@ -126,7 +130,7 @@ describe('PortfolioView', () => {
     expect(await screen.findByText(/aún no tienes posiciones en fondos/i)).toBeInTheDocument()
   })
 
-  it('opens the sell dialog from the mobile card contextual menu while keeping transfer disabled', async () => {
+  it('opens the sell dialog from the mobile card contextual menu', async () => {
     const user = userEvent.setup()
 
     renderWithProviders(<PortfolioView />)
@@ -141,11 +145,53 @@ describe('PortfolioView', () => {
     const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
 
     expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeEnabled()
-    expect(within(menu).getByRole('menuitem', { name: 'Traspasar' })).toBeDisabled()
+    expect(within(menu).getByRole('menuitem', { name: 'Traspasar' })).toBeEnabled()
 
     await user.click(within(menu).getByRole('menuitem', { name: 'Vender' }))
 
     expect(await screen.findByRole('dialog', { name: /vender fondo/i })).toBeInTheDocument()
+  })
+
+  it('opens the transfer dialog from the portfolio contextual menu', async () => {
+    const user = userEvent.setup()
+
+    renderWithProviders(<PortfolioView />)
+
+    const firstCard = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+
+    await user.click(within(firstCard).getByRole('button', { name: /acciones para alpha strategy fund/i }))
+
+    const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
+
+    await user.click(within(menu).getByRole('menuitem', { name: 'Traspasar' }))
+
+    expect(await screen.findByRole('dialog', { name: /traspasar fondo/i })).toBeInTheDocument()
+  })
+
+  it('disables transfer and explains the reason when the user only owns one fund', async () => {
+    const user = userEvent.setup()
+
+    server.use(
+      http.get(
+        'http://localhost/api/portfolio',
+        () =>
+          HttpResponse.json({
+            data: [{ id: 'portfolio-1', name: 'Alpha Strategy Fund', quantity: 8.5, totalValue: { amount: 2100, currency: 'EUR' } }],
+          })
+      )
+    )
+
+    renderWithProviders(<PortfolioView />)
+
+    const onlyCard = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+
+    await user.click(within(onlyCard).getByRole('button', { name: /acciones para alpha strategy fund/i }))
+
+    const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
+
+    expect(within(menu).getByRole('menuitem', { name: 'Vender' })).toBeEnabled()
+    expect(within(menu).getByRole('menuitem', { name: 'Traspasar' })).toBeDisabled()
+    expect(within(menu).getByText(/necesitas al menos dos fondos comprados para traspasar/i)).toBeInTheDocument()
   })
 
   it('renders each mobile position with left name, right value block, and far-right menu', async () => {

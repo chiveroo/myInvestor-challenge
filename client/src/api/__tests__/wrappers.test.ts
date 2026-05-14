@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
-import { buyFund, getFunds } from '../funds'
+import { buyFund, getFunds, transferFund } from '../funds'
 import { getPortfolio } from '../portfolio'
 import { server } from '@/test/msw/server'
 
@@ -75,6 +75,24 @@ describe('API wrappers', () => {
 
     await expect(buyFund('fund-1', 3)).resolves.toEqual({ message: 'ok' })
     expect(requestBody).toEqual({ quantity: 3 })
+    expect(contentType).toBe('application/json')
+  })
+
+  it('posts the transfer payload to the funds transfer endpoint', async () => {
+    let requestBody: unknown
+    let contentType: string | null = null
+
+    server.use(
+      http.post('http://localhost/api/funds/transfer', async ({ request }) => {
+        requestBody = await request.json()
+        contentType = request.headers.get('content-type')
+
+        return HttpResponse.json({ message: 'ok' })
+      })
+    )
+
+    await expect(transferFund('fund-1', 'fund-2', 3.25)).resolves.toEqual({ message: 'ok' })
+    expect(requestBody).toEqual({ fromFundId: 'fund-1', toFundId: 'fund-2', quantity: 3.25 })
     expect(contentType).toBe('application/json')
   })
 })

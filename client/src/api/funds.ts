@@ -35,3 +35,15 @@ export function sellFund(id: string, quantity: number): Promise<{ message: strin
     body: JSON.stringify({ quantity }),
   })
 }
+
+export function transferFund(
+  fromFundId: string,
+  toFundId: string,
+  quantity: number,
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>('/api/funds/transfer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fromFundId, toFundId, quantity }),
+  })
+}

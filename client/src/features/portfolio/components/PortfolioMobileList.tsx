@@ -101,7 +101,17 @@ const MobileMenuSlot = styled.div`
   align-items: flex-start;
 `;
 
-function PortfolioMobileRow({ position, onSell }: { position: PortfolioPosition; onSell: (position: PortfolioPosition) => void }) {
+function PortfolioMobileRow({
+  position,
+  positions,
+  onSell,
+  onTransfer,
+}: {
+  position: PortfolioPosition
+  positions: PortfolioPosition[]
+  onSell: (position: PortfolioPosition) => void
+  onTransfer: (position: PortfolioPosition) => void
+}) {
   const mobileUnitValueLabel = getMobileUnitValueLabel(position);
 
   return (
@@ -123,22 +133,34 @@ function PortfolioMobileRow({ position, onSell }: { position: PortfolioPosition;
       </MobileValueBlock>
 
       <MobileMenuSlot>
-        <PortfolioActionMenu position={position} onSell={onSell} />
+        <PortfolioActionMenu
+          position={position}
+          positions={positions}
+          onSell={onSell}
+          onTransfer={onTransfer}
+        />
       </MobileMenuSlot>
     </MobileCard>
   );
 }
 
 interface PortfolioMobileListProps {
-  positions: PortfolioPosition[];
-  onSell: (position: PortfolioPosition) => void;
+  positions: PortfolioPosition[]
+  onSell: (position: PortfolioPosition) => void
+  onTransfer: (position: PortfolioPosition) => void
 }
 
-export function PortfolioMobileList({ positions, onSell }: PortfolioMobileListProps) {
+export function PortfolioMobileList({ positions, onSell, onTransfer }: PortfolioMobileListProps) {
   return (
     <MobileList>
       {positions.map((position) => (
-        <PortfolioMobileRow key={position.id} position={position} onSell={onSell} />
+        <PortfolioMobileRow
+          key={position.id}
+          position={position}
+          positions={positions}
+          onSell={onSell}
+          onTransfer={onTransfer}
+        />
       ))}
     </MobileList>
   );

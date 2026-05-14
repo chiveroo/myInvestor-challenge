@@ -58,11 +58,12 @@ const HelperText = styled.span`
 `;
 
 interface PortfolioDesktopTableProps {
-  positions: PortfolioPosition[];
-  onSell: (position: PortfolioPosition) => void;
+  positions: PortfolioPosition[]
+  onSell: (position: PortfolioPosition) => void
+  onTransfer: (position: PortfolioPosition) => void
 }
 
-export function PortfolioDesktopTable({ positions, onSell }: PortfolioDesktopTableProps) {
+export function PortfolioDesktopTable({ positions, onSell, onTransfer }: PortfolioDesktopTableProps) {
   return (
     <DesktopTableWrap>
       <Table aria-label="Posiciones de la cartera">
@@ -86,7 +87,12 @@ export function PortfolioDesktopTable({ positions, onSell }: PortfolioDesktopTab
                 {formatMoney(position.totalValue.amount, position.totalValue.currency)}
               </Td>
               <ActionsCell>
-                <PortfolioActionMenu position={position} onSell={onSell} />
+                <PortfolioActionMenu
+                  position={position}
+                  positions={positions}
+                  onSell={onSell}
+                  onTransfer={onTransfer}
+                />
               </ActionsCell>
             </tr>
           ))}
