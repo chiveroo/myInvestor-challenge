@@ -24,4 +24,8 @@ export const handlers = [
       data,
     })
   }),
+
+  http.post(`${BASE}/api/funds/:id/buy`, () => {
+    return HttpResponse.json({ message: 'Compra realizada con éxito' })
+  }),
 ]

@@ -1,33 +1,32 @@
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import styled from 'styled-components'
-import { Eye, MoreVertical, ShoppingCart } from 'lucide-react'
-import { useTheme } from 'styled-components'
-import { IconButton } from '@/components/atoms/IconButton'
+import { IconButton } from '@/components/atoms/IconButton';
+import { MoreVertical, ShoppingCart } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import styled, { useTheme } from 'styled-components';
 
 interface ActionsMenuProps {
-  fundId: string
-  fundName: string
-  onBuy?: (fundId: string) => void
+  fundId: string;
+  fundName: string;
+  onBuy?: (fundId: string) => void;
 }
 
 interface PopoverPos {
-  top?: number
-  bottom?: number
-  right: number
+  top?: number;
+  bottom?: number;
+  right: number;
 }
 
 const Wrapper = styled.div`
   position: relative;
   display: inline-flex;
-`
+`;
 
 // position: fixed escapes all overflow containers and stacking contexts
 const Popover = styled.ul<{ $pos: PopoverPos }>`
   position: fixed;
   right: ${({ $pos }) => $pos.right}px;
-  ${({ $pos }) => $pos.top !== undefined ? `top: ${$pos.top}px;` : ''}
-  ${({ $pos }) => $pos.bottom !== undefined ? `bottom: ${$pos.bottom}px;` : ''}
+  ${({ $pos }) => ($pos.top !== undefined ? `top: ${$pos.top}px;` : '')}
+  ${({ $pos }) => ($pos.bottom !== undefined ? `bottom: ${$pos.bottom}px;` : '')}
   min-width: ${({ theme }) => theme.sizes.dropdownMinWidth};
   background: ${({ theme }) => theme.colors.background};
   border: ${({ theme }) => theme.borderWidth.base} solid ${({ theme }) => theme.colors.border};
@@ -36,9 +35,9 @@ const Popover = styled.ul<{ $pos: PopoverPos }>`
   z-index: ${({ theme }) => theme.zIndex.dropdown};
   overflow: hidden;
   padding: ${({ theme }) => theme.spacing['1']} ${({ theme }) => theme.spacing['0']};
-`
+`;
 
-const MenuItem = styled.li``
+const MenuItem = styled.li``;
 
 const MenuButton = styled.button`
   display: flex;
@@ -63,96 +62,98 @@ const MenuButton = styled.button`
     outline: ${({ theme }) => theme.focus.ringWidth} solid ${({ theme }) => theme.colors.primary};
     outline-offset: -${({ theme }) => theme.focus.ringOffset};
   }
-`
+`;
 
-const POPOVER_HEIGHT_APPROX = 88 // ~2 items × 44px
-const GAP_PX = 4                 // spacing['1'] = 0.25rem = 4px
+const POPOVER_HEIGHT_APPROX = 44; // ~1 item × 44px
+const GAP_PX = 4; // spacing['1'] = 0.25rem = 4px
 
 export function ActionsMenu({ fundId, fundName, onBuy }: ActionsMenuProps) {
-  const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState<PopoverPos>({ right: 0 })
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const popoverRef = useRef<HTMLUListElement>(null)
-  const theme = useTheme()
-  const iconSize = theme.iconSize.md
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<PopoverPos>({ right: 0 });
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLUListElement>(null);
+  const theme = useTheme();
+  const iconSize = theme.iconSize.md;
 
   function handleToggle() {
     if (!open && wrapperRef.current) {
-      const rect = wrapperRef.current.getBoundingClientRect()
-      const right = window.innerWidth - rect.right
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const right = window.innerWidth - rect.right;
       // Prefer upward; fall back to downward only when not enough space above
       if (rect.top >= POPOVER_HEIGHT_APPROX) {
-        setPos({ bottom: window.innerHeight - rect.top + GAP_PX, right })
+        setPos({ bottom: window.innerHeight - rect.top + GAP_PX, right });
       } else {
-        setPos({ top: rect.bottom + GAP_PX, right })
+        setPos({ top: rect.bottom + GAP_PX, right });
       }
     }
-    setOpen(v => !v)
+    setOpen((v) => !v);
   }
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     function handleClickOutside(e: MouseEvent) {
-      const target = e.target as Node
-      const insideWrapper = wrapperRef.current?.contains(target) ?? false
-      const insidePopover = popoverRef.current?.contains(target) ?? false
-      if (!insideWrapper && !insidePopover) setOpen(false)
+      const target = e.target as Node;
+      const insideWrapper = wrapperRef.current?.contains(target) ?? false;
+      const insidePopover = popoverRef.current?.contains(target) ?? false;
+      if (!insideWrapper && !insidePopover) setOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     function handleEsc(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') setOpen(false);
     }
-    document.addEventListener('keydown', handleEsc)
-    return () => document.removeEventListener('keydown', handleEsc)
-  }, [open])
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [open]);
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     // capture:true catches scroll on any element (including the overflow table wrapper)
-    function handleScroll() { setOpen(false) }
-    window.addEventListener('scroll', handleScroll, { capture: true })
-    return () => window.removeEventListener('scroll', handleScroll, { capture: true })
-  }, [open])
+    function handleScroll() {
+      setOpen(false);
+    }
+    window.addEventListener('scroll', handleScroll, { capture: true });
+    return () => window.removeEventListener('scroll', handleScroll, { capture: true });
+  }, [open]);
 
   return (
     <Wrapper ref={wrapperRef}>
       <IconButton
         aria-label={`Acciones para ${fundName}`}
         aria-expanded={open}
-        aria-haspopup="true"
+        aria-haspopup="menu"
         onClick={handleToggle}
       >
         <MoreVertical size={iconSize} />
       </IconButton>
 
-      {open && createPortal(
-        <Popover ref={popoverRef} $pos={pos} role="menu" aria-label={`Menú de acciones para ${fundName}`}>
-          <MenuItem role="none">
-            <MenuButton
-              role="menuitem"
-              onClick={() => { onBuy?.(fundId); setOpen(false) }}
-            >
-              <ShoppingCart size={iconSize} aria-hidden="true" />
-              Comprar
-            </MenuButton>
-          </MenuItem>
-          <MenuItem role="none">
-            <MenuButton
-              role="menuitem"
-              onClick={() => setOpen(false)}
-            >
-              <Eye size={iconSize} aria-hidden="true" />
-              Ver detalle
-            </MenuButton>
-          </MenuItem>
-        </Popover>,
-        document.body
-      )}
+      {open &&
+        createPortal(
+          <Popover
+            ref={popoverRef}
+            $pos={pos}
+            role="menu"
+            aria-label={`Menú de acciones para ${fundName}`}
+          >
+            <MenuItem role="none">
+              <MenuButton
+                role="menuitem"
+                onClick={() => {
+                  onBuy?.(fundId);
+                  setOpen(false);
+                }}
+              >
+                <ShoppingCart size={iconSize} aria-hidden="true" />
+                Comprar
+              </MenuButton>
+            </MenuItem>
+          </Popover>,
+          document.body
+        )}
     </Wrapper>
-  )
+  );
 }

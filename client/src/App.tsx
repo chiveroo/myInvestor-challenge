@@ -55,9 +55,16 @@ const ContentArea = styled.div`
       ${({ theme }) => theme.spacing['4']} + ${({ theme }) => theme.sizes.sidebarWidth} +
         ${({ theme }) => theme.spacing['4']}
     );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: ${({ theme }) => theme.spacing['6']} ${({ theme }) => theme.spacing['6']}
       ${({ theme }) => theme.spacing['12']};
-    max-width: ${({ theme }) => theme.sizes.contentMaxWidth};
+
+    & > * {
+      width: 100%;
+      max-width: ${({ theme }) => theme.sizes.contentMaxWidth};
+    }
   }
 `
 

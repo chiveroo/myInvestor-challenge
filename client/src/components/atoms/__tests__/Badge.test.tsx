@@ -20,7 +20,6 @@ describe('Badge', () => {
   })
 
   it('falls back to the raw label when no translation exists', () => {
-    // @ts-expect-error — intentional unknown category for resilience test
     renderWithProviders(<Badge label="UNKNOWN_CATEGORY" variant="default" />)
     expect(screen.getByText('UNKNOWN_CATEGORY')).toBeInTheDocument()
   })

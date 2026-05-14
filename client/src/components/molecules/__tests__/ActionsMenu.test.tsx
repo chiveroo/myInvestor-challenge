@@ -9,7 +9,7 @@ describe('ActionsMenu', () => {
     renderWithProviders(<ActionsMenu fundId="1" fundName="Global Equity Fund" />)
     const trigger = screen.getByRole('button', { name: /acciones para global equity fund/i })
     expect(trigger).toBeInTheDocument()
-    expect(trigger).toHaveAttribute('aria-haspopup', 'true')
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu')
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
 
@@ -21,7 +21,7 @@ describe('ActionsMenu', () => {
 
     expect(screen.getByRole('menu')).toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: /comprar/i })).toBeInTheDocument()
-    expect(screen.getByRole('menuitem', { name: /ver detalle/i })).toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: /ver detalle/i })).not.toBeInTheDocument()
   })
 
   it('sets aria-expanded="true" while the menu is open', async () => {

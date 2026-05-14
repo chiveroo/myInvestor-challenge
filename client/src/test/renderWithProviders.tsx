@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, type RenderOptions } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
+import { ToastProvider } from '@/components/organisms/ToastProvider';
 
 function createQueryClient() {
   return new QueryClient({
@@ -21,7 +22,9 @@ export function renderWithProviders(ui: ReactNode, options?: Omit<RenderOptions,
   function Wrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <ToastProvider>{children}</ToastProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     );
   }

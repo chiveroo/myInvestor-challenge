@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useSortState } from '@/hooks/useSortState'
+import { useDisclosure } from '@/hooks/useDisclosure'
 import styled, { css, keyframes } from 'styled-components'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { useFunds } from '../hooks/useFunds'
+import { BuyDialog } from './BuyDialog'
 import { SortableHeader } from '@/components/molecules/SortableHeader'
 import { ProfitabilityCell } from '@/components/molecules/ProfitabilityCell'
 import { ActionsMenu } from '@/components/molecules/ActionsMenu'
@@ -172,7 +174,7 @@ function SkeletonRows() {
   )
 }
 
-function FundRow({ fund }: { fund: Fund }) {
+function FundRow({ fund, onBuy }: { fund: Fund; onBuy: (fund: Fund) => void }) {
   return (
     <tr>
       <Td $align="left">
@@ -186,7 +188,7 @@ function FundRow({ fund }: { fund: Fund }) {
       <Td><ProfitabilityCell value={fund.profitability.threeYears} /></Td>
       <Td><ProfitabilityCell value={fund.profitability.fiveYears} /></Td>
       <StickyTd $compact>
-        <ActionsMenu fundId={fund.id} fundName={fund.name} />
+        <ActionsMenu fundId={fund.id} fundName={fund.name} onBuy={() => onBuy(fund)} />
       </StickyTd>
     </tr>
   )
@@ -195,6 +197,13 @@ function FundRow({ fund }: { fund: Fund }) {
 export function FundsTable() {
   const [page, setPage] = useState(1)
   const { sort, toggleSort } = useSortState<SortField>()
+  const buyDisclosure = useDisclosure()
+  const [selectedFund, setSelectedFund] = useState<Fund | null>(null)
+
+  function handleBuy(fund: Fund) {
+    setSelectedFund(fund)
+    buyDisclosure.open()
+  }
 
   const { data, isLoading, isPlaceholderData, isError, refetch } = useFunds(page, sort)
 
@@ -240,7 +249,7 @@ export function FundsTable() {
           <tbody>
             {isLoading
               ? <SkeletonRows />
-              : data?.data.map(fund => <FundRow key={fund.id} fund={fund} />)
+              : data?.data.map(fund => <FundRow key={fund.id} fund={fund} onBuy={handleBuy} />)
             }
           </tbody>
         </Table>
@@ -251,6 +260,14 @@ export function FundsTable() {
           page={data.pagination.page}
           totalPages={data.pagination.totalPages}
           onPageChange={p => setPage(p)}
+        />
+      )}
+
+      {selectedFund && (
+        <BuyDialog
+          fund={selectedFund}
+          isOpen={buyDisclosure.isOpen}
+          onClose={buyDisclosure.close}
         />
       )}
     </Section>
