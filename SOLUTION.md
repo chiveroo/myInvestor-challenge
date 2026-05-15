@@ -11,7 +11,8 @@ Solución a la prueba técnica de Front-end. La aplicación cubre el flujo compl
 ### Requisitos
 
 - **Node** `^24.5.0`
-- **Yarn** `^4.5.1`
+- **Yarn** `^4.5.1` como gestor recomendado, porque el repo incluye `packageManager` y `yarn.lock`.
+- El cliente también puede arrancarse con `npm` si se trabaja dentro de `client/`, pero para evitar lockfiles mezclados la ruta reproducible de la entrega es Yarn.
 
 ### Pasos
 
@@ -91,7 +92,7 @@ yarn e2e          # Playwright (smoke + a11y con axe)
 | Capa         | Tecnología                                   | Por qué                                                                            |
 | ------------ | -------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Framework    | React 19 + Vite 8                            | DX y HMR rápidos; React 19 estable                                                 |
-| Lenguaje     | TypeScript 6 (strict + `erasableSyntaxOnly`) | Type-safety extremo, prepara el camino a runtime nativo                            |
+| Lenguaje     | TypeScript 6 + `erasableSyntaxOnly`          | Type-safety fuerte, checks de no-unused y preparación para runtime nativo          |
 | Estilos      | styled-components 6                          | Theme tipado, transient props, sin runtime CSS overhead vs alternativas            |
 | Server state | TanStack Query 5                             | Cache + invalidación declarativa, `keepPreviousData` para paginación sin parpadeos |
 | Formularios  | react-hook-form + Zod                        | Validación type-safe, mínimas re-renders, schemas reutilizables                    |
@@ -149,7 +150,7 @@ El theme está **tipado** vía `styled.d.ts` con module augmentation, así style
 
 - **17 archivos** · **99 tests** · `93.57%` statements / `82.31%` branches
 - Thresholds en CI: 80 / 75 / 80 / 80 (configurado en `vite.config.ts`)
-- Tests semánticos: `getByRole`, `getByLabelText`, `getByText` — **cero `data-testid`**
+- Tests semánticos priorizando `getByRole`, `getByLabelText` y `getByText`; `data-testid` queda reservado para casos puntuales de layout responsive donde no hay una señal accesible estable.
 
 ---
 
@@ -159,7 +160,7 @@ Por orden de prioridad:
 
 1. **Histórico de órdenes** — La pestaña "Órdenes" del detalle de cartera queda como placeholder. La forma natural sería un `useOrderHistory` hook con persistencia (localStorage o backend), feed cronológico con filtros por tipo (compra/venta/traspaso).
 
-2. **Ordenación alfabética y agrupación por categoría en cartera** — Bonus del enunciado no abordados.
+2. **Agrupación por categoría en cartera** — La cartera ya se muestra ordenada alfabéticamente; faltaría enriquecerla con categorías reales sin inferirlas por nombre.
 
 3. **Swipe actions en móvil** — Bonus de la cartera. Implementarlo con un gesture handler tipo `framer-motion` o `react-swipeable`.
 

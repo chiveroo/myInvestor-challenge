@@ -3,11 +3,11 @@ import { z } from 'zod'
 import {
   buildSellDialogSchema,
   type SellDialogFormValues,
-} from '../components/SellDialog'
+} from '../components/sellDialogSchema'
 import {
   buildTransferDialogSchema,
   type TransferDialogFormValues,
-} from '../components/TransferDialog'
+} from '../components/transferDialogSchema'
 
 describe('dialog form types', () => {
   it('keeps SellDialog form values aligned with the schema input', () => {

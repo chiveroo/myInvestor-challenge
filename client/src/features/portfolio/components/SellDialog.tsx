@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { z } from 'zod'
 import styled from 'styled-components'
 import { sellFund } from '@/api/funds'
 import { CurrencyInput } from '@/components/atoms/CurrencyInput'
@@ -13,6 +12,7 @@ import { formatMoney } from '@/utils/format'
 import { fundKeys } from '@/features/funds/keys'
 import { portfolioKeys } from '../keys'
 import { getUnitValueAmount } from './portfolioHelpers'
+import { buildSellDialogSchema, type SellDialogFormValues } from './sellDialogSchema'
 import type { PortfolioPosition } from '@/types'
 
 interface SellDialogProps {
@@ -20,30 +20,6 @@ interface SellDialogProps {
   isOpen: boolean
   onClose: () => void
 }
-
-export function buildSellDialogSchema(maxAmount: number) {
-  return z.object({
-    amount: z
-      .number({ error: 'Introduce un importe válido.' })
-      .optional()
-      .superRefine((value, ctx) => {
-        if (value === undefined) {
-          ctx.addIssue({ code: 'custom', message: 'Introduce un importe válido.' })
-          return
-        }
-
-        if (value <= 0) {
-          ctx.addIssue({ code: 'custom', message: 'El importe debe ser mayor que 0 €.' })
-        }
-
-        if (value > maxAmount) {
-          ctx.addIssue({ code: 'custom', message: 'No puedes vender más del saldo disponible.' })
-        }
-      }),
-  })
-}
-
-export type SellDialogFormValues = z.input<ReturnType<typeof buildSellDialogSchema>>
 
 function normalizeSellAmount(amount: number | undefined, maxAmount: number) {
   if (amount === undefined || Number.isNaN(amount)) {
