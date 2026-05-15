@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 const FRONTEND_PORT = 4173
 const BACKEND_PORT = 3000
+const reuseExistingServer = !process.env.CI
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -27,14 +28,14 @@ export default defineConfig({
       command: 'yarn start',
       cwd: '..',
       url: `http://127.0.0.1:${BACKEND_PORT}/portfolio`,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer,
       timeout: 120 * 1000,
       name: 'backend',
     },
     {
       command: `yarn vite --host 127.0.0.1 --port ${FRONTEND_PORT}`,
       url: `http://127.0.0.1:${FRONTEND_PORT}`,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer,
       timeout: 120 * 1000,
       name: 'frontend',
     },

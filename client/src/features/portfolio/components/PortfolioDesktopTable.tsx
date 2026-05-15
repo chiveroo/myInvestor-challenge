@@ -1,6 +1,8 @@
 import type { PortfolioPosition } from '@/types';
+import { Badge } from '@/components/atoms/Badge';
 import { formatMoney } from '@/utils/format';
 import styled from 'styled-components';
+import type { PortfolioCategoryGroup } from '../hooks/usePortfolio';
 import { PortfolioActionMenu } from './PortfolioActionMenu';
 import { formatQuantity, getDesktopUnitValueLabel } from './portfolioHelpers';
 
@@ -16,6 +18,18 @@ const DesktopTableWrap = styled.div`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+`;
+
+const CategorySection = styled.section`
+  margin-bottom: ${({ theme }) => theme.spacing['6']};
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const CategoryHeading = styled.h3`
+  margin: 0 0 ${({ theme }) => theme.spacing['3']};
 `;
 
 const Thead = styled.thead`
@@ -58,46 +72,60 @@ const HelperText = styled.span`
 `;
 
 interface PortfolioDesktopTableProps {
-  positions: PortfolioPosition[]
+  groupedPositions: PortfolioCategoryGroup[]
+  allPositions: PortfolioPosition[]
   onSell: (position: PortfolioPosition) => void
   onTransfer: (position: PortfolioPosition) => void
 }
 
-export function PortfolioDesktopTable({ positions, onSell, onTransfer }: PortfolioDesktopTableProps) {
+export function PortfolioDesktopTable({
+  groupedPositions,
+  allPositions,
+  onSell,
+  onTransfer,
+}: PortfolioDesktopTableProps) {
   return (
     <DesktopTableWrap>
-      <Table aria-label="Posiciones de la cartera">
-        <Thead>
-          <tr>
-            <Th>Fondo</Th>
-            <Th $align="right">Participaciones</Th>
-            <Th $align="right">Valor total</Th>
-            <Th>Acciones</Th>
-          </tr>
-        </Thead>
-        <tbody>
-          {positions.map((position) => (
-            <tr key={position.id}>
-              <Td>
-                <Name>{position.name}</Name>
-                <HelperText>{getDesktopUnitValueLabel(position) ?? 'Posición en fondos'}</HelperText>
-              </Td>
-              <Td $align="right">{formatQuantity(position.quantity)}</Td>
-              <Td $align="right">
-                {formatMoney(position.totalValue.amount, position.totalValue.currency)}
-              </Td>
-              <ActionsCell>
-                <PortfolioActionMenu
-                  position={position}
-                  positions={positions}
-                  onSell={onSell}
-                  onTransfer={onTransfer}
-                />
-              </ActionsCell>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      {groupedPositions.map(group => (
+        <CategorySection key={group.category} aria-labelledby={`portfolio-desktop-category-${group.category}`}>
+          <CategoryHeading id={`portfolio-desktop-category-${group.category}`}>
+            <Badge label={group.category} variant={group.category} />
+          </CategoryHeading>
+
+          <Table aria-label={`Posiciones de la categoría ${group.category}`}>
+            <Thead>
+              <tr>
+                <Th>Fondo</Th>
+                <Th $align="right">Participaciones</Th>
+                <Th $align="right">Valor total</Th>
+                <Th>Acciones</Th>
+              </tr>
+            </Thead>
+            <tbody>
+              {group.positions.map((position) => (
+                <tr key={position.id}>
+                  <Td>
+                    <Name>{position.name}</Name>
+                    <HelperText>{getDesktopUnitValueLabel(position) ?? 'Posición en fondos'}</HelperText>
+                  </Td>
+                  <Td $align="right">{formatQuantity(position.quantity)}</Td>
+                  <Td $align="right">
+                    {formatMoney(position.totalValue.amount, position.totalValue.currency)}
+                  </Td>
+                  <ActionsCell>
+                    <PortfolioActionMenu
+                      position={position}
+                      positions={allPositions}
+                      onSell={onSell}
+                      onTransfer={onTransfer}
+                    />
+                  </ActionsCell>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </CategorySection>
+      ))}
     </DesktopTableWrap>
   );
 }

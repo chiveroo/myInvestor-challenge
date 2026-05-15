@@ -39,6 +39,7 @@ export interface PortfolioPosition {
   id: string
   name: string
   quantity: number
+  category: Category
   totalValue: Amount
 }
 

@@ -471,6 +471,9 @@ app.post('/funds/transfer', (req: Request, res: Response) => {
  *                         type: string
  *                       quantity:
  *                         type: number
+ *                       category:
+ *                         type: string
+ *                         enum: ['GLOBAL', 'TECH', 'HEALTH', 'MONEY_MARKET']
  *                       totalValue:
  *                         type: object
  *                         properties:
@@ -485,11 +488,12 @@ app.get('/portfolio', (req: Request, res: Response) => {
     .map(({ id: fundId, quantity }) => {
       const fund = getFundById(fundId);
       if (!fund) return;
-      const { value, name, id } = fund;
+      const { value, name, id, category } = fund;
       return {
         id,
         name,
         quantity: quantity,
+        category,
         totalValue: { amount: quantity * value.amount, currency: value.currency },
       };
     })

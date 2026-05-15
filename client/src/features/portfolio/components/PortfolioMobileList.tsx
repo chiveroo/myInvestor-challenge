@@ -2,6 +2,8 @@ import type { PortfolioPosition } from '@/types';
 import { formatMoney } from '@/utils/format';
 import { LineChart } from 'lucide-react';
 import styled from 'styled-components';
+import { Badge } from '@/components/atoms/Badge';
+import type { PortfolioCategoryGroup } from '../hooks/usePortfolio';
 import { PortfolioActionMenu } from './PortfolioActionMenu';
 import { formatQuantitySummary, getMobileUnitValueLabel } from './portfolioHelpers';
 
@@ -101,6 +103,18 @@ const MobileMenuSlot = styled.div`
   align-items: flex-start;
 `;
 
+const CategorySection = styled.section`
+  margin-bottom: ${({ theme }) => theme.spacing['4']};
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const CategoryHeading = styled.h3`
+  margin: ${({ theme }) => theme.spacing['2']} 0;
+`;
+
 function PortfolioMobileRow({
   position,
   positions,
@@ -145,22 +159,36 @@ function PortfolioMobileRow({
 }
 
 interface PortfolioMobileListProps {
-  positions: PortfolioPosition[]
+  groupedPositions: PortfolioCategoryGroup[]
+  allPositions: PortfolioPosition[]
   onSell: (position: PortfolioPosition) => void
   onTransfer: (position: PortfolioPosition) => void
 }
 
-export function PortfolioMobileList({ positions, onSell, onTransfer }: PortfolioMobileListProps) {
+export function PortfolioMobileList({
+  groupedPositions,
+  allPositions,
+  onSell,
+  onTransfer,
+}: PortfolioMobileListProps) {
   return (
     <MobileList>
-      {positions.map((position) => (
-        <PortfolioMobileRow
-          key={position.id}
-          position={position}
-          positions={positions}
-          onSell={onSell}
-          onTransfer={onTransfer}
-        />
+      {groupedPositions.map(group => (
+        <CategorySection key={group.category} aria-labelledby={`portfolio-mobile-category-${group.category}`}>
+          <CategoryHeading id={`portfolio-mobile-category-${group.category}`}>
+            <Badge label={group.category} variant={group.category} />
+          </CategoryHeading>
+
+          {group.positions.map((position) => (
+            <PortfolioMobileRow
+              key={position.id}
+              position={position}
+              positions={allPositions}
+              onSell={onSell}
+              onTransfer={onTransfer}
+            />
+          ))}
+        </CategorySection>
       ))}
     </MobileList>
   );

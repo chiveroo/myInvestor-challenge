@@ -88,17 +88,29 @@ describe('PortfolioView', () => {
     expect(screen.getByRole('tabpanel', { name: 'Órdenes' })).toBeInTheDocument()
   })
 
-  it('renders sorted positions from the portfolio', async () => {
+  it('renders positions alphabetically inside each category group', async () => {
     renderWithProviders(<PortfolioView />)
 
     const groups = await screen.findAllByRole('group')
     const names = groups.map((group) => group.getAttribute('aria-label')?.replace('Posición en ', ''))
 
     expect(names).toEqual([
-      'Alpha Strategy Fund',
       'Renta Variable Global',
       'US Opportunities',
+      'Alpha Strategy Fund',
     ])
+  })
+
+  it('renders visible category groups in deterministic order', async () => {
+    renderWithProviders(<PortfolioView />)
+
+    const categoryHeadings = await screen.findAllByRole('heading', {
+      level: 3,
+      name: /global|tecnología/i,
+    })
+    const groupLabels = categoryHeadings.map(node => node.textContent)
+
+    expect(groupLabels).toEqual(['Global', 'Tecnología'])
   })
 
   it('shows derived unit value for each portfolio position on mobile without the helper label', async () => {
@@ -114,7 +126,18 @@ describe('PortfolioView', () => {
     server.use(
       http.get(
         'http://localhost/api/portfolio',
-        () => HttpResponse.json({ data: [{ id: 'portfolio-4', name: 'Cash Reserve', quantity: 0, totalValue: { amount: 0, currency: 'EUR' } }] })
+        () =>
+          HttpResponse.json({
+            data: [
+              {
+                id: 'portfolio-4',
+                name: 'Cash Reserve',
+                quantity: 0,
+                category: 'MONEY_MARKET',
+                totalValue: { amount: 0, currency: 'EUR' },
+              },
+            ],
+          })
       )
     )
 
@@ -207,7 +230,15 @@ describe('PortfolioView', () => {
         'http://localhost/api/portfolio',
         () =>
           HttpResponse.json({
-            data: [{ id: 'portfolio-1', name: 'Alpha Strategy Fund', quantity: 8.5, totalValue: { amount: 2100, currency: 'EUR' } }],
+            data: [
+              {
+                id: 'portfolio-1',
+                name: 'Alpha Strategy Fund',
+                quantity: 8.5,
+                category: 'TECH',
+                totalValue: { amount: 2100, currency: 'EUR' },
+              },
+            ],
           })
       )
     )

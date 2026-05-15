@@ -69,6 +69,7 @@ yarn e2e          # Playwright (smoke + a11y con axe)
 - Historial de órdenes persistido en `localStorage` (`myinvestor_orders`) y sincronizado con React Query
 - Registro de compras, ventas y traspasos únicamente tras mutaciones exitosas (`onSuccess`)
 - ✨ **Bonus:** Diseño responsive
+- ✨ **Bonus:** Agrupación por categoría en cartera con orden determinista y datos canónicos del backend
 - Action menu con "Vender" y "Traspasar"
 
 ### Tarea 4 — Venta de fondo
@@ -139,6 +140,18 @@ Tokens centralizados de:
 
 El theme está **tipado** vía `styled.d.ts` con module augmentation, así styled-components autocompleta `theme.colors.primary` etc.
 
+### Categorización de cartera
+
+Para el bonus de agrupar la cartera por tipo de fondo valoré tres opciones:
+
+| Opción | Decisión | Motivo |
+| ------ | -------- | ------ |
+| Inferir categoría por nombre | Descartada | Es frágil: depende de strings como `Tech`, `Health` o `Money` y se rompe si cambia el naming del fondo. |
+| Hacer un join en frontend contra `/funds` | Descartada como solución principal | `/funds` es un listado paginado; obligaría a traer todas las páginas o a hacer queries adicionales por fondo. Demasiada complejidad para un dato que ya conoce el backend. |
+| Enriquecer `/portfolio` con `category` | Elegida | La categoría ya existe como dato canónico en el catálogo del backend. Devolverla en `/portfolio` mantiene el contrato honesto, simplifica TypeScript y evita duplicar lógica de dominio en cliente. |
+
+Con esta decisión, `PortfolioPosition` incluye `category: Category` y la UI solo deriva grupos desde datos reales. Dentro de cada grupo los fondos se mantienen ordenados alfabéticamente, y los grupos usan un orden estable (`GLOBAL`, `TECH`, `HEALTH`, `MONEY_MARKET`).
+
 ### Accesibilidad
 
 - Todos los diálogos usan `<dialog>` nativo → focus trap y Escape gratis
@@ -160,16 +173,14 @@ El theme está **tipado** vía `styled.d.ts` con module augmentation, así style
 
 Por orden de prioridad:
 
-1. **Agrupación por categoría en cartera** — La cartera ya se muestra ordenada alfabéticamente; faltaría enriquecerla con categorías reales sin inferirlas por nombre.
+1. **Swipe actions en móvil** — Bonus de la cartera. Implementarlo con un gesture handler tipo `framer-motion` o `react-swipeable`.
 
-2. **Swipe actions en móvil** — Bonus de la cartera. Implementarlo con un gesture handler tipo `framer-motion` o `react-swipeable`.
+2. **Skeleton loaders más finos** — Hoy hay skeleton en la tabla de fondos; faltarían en cartera, en el dialog de compra al precargar el fondo, etc.
 
-3. **Skeleton loaders más finos** — Hoy hay skeleton en la tabla de fondos; faltarían en cartera, en el dialog de compra al precargar el fondo, etc.
+3. **Más cobertura E2E** — Ahora hay un smoke + axe. Faltarían escenarios de compra/venta/traspaso end-to-end con backend real.
 
-4. **Más cobertura E2E** — Ahora hay un smoke + axe. Faltarían escenarios de compra/venta/traspaso end-to-end con backend real.
+4. **Internacionalización** — Todo el texto está en español hardcoded. Si esto fuese a escalar internacionalmente, extraería a `i18next` con namespaces por feature.
 
-5. **Internacionalización** — Todo el texto está en español hardcoded. Si esto fuese a escalar internacionalmente, extraería a `i18next` con namespaces por feature.
+5. **Error boundary global** — Hoy los errores de query se manejan a nivel de componente. Un `<ErrorBoundary>` raíz con reporting a Sentry sería el siguiente paso.
 
-6. **Error boundary global** — Hoy los errores de query se manejan a nivel de componente. Un `<ErrorBoundary>` raíz con reporting a Sentry sería el siguiente paso.
-
-7. **CI/CD** — Pipeline de GitHub Actions corriendo `lint + typecheck + test + e2e` en cada PR, con preview deployments.
+6. **CI/CD** — Pipeline de GitHub Actions corriendo `lint + typecheck + test + e2e` en cada PR, con preview deployments.

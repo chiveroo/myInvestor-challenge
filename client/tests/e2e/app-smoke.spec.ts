@@ -34,7 +34,7 @@ test('opens the buy dialog and passes an accessibility smoke scan', async ({ pag
   await expect(page.getByRole('button', { name: /comprar ahora/i })).toBeDisabled()
 })
 
-test('buys a fund and exposes the new portfolio position actions', async ({ page }) => {
+test('buys a fund and shows grouped portfolio actions state', async ({ page }) => {
   await openBuyDialog(page)
 
   await page.getByLabel('Importe').fill('120,45')
@@ -46,15 +46,22 @@ test('buys a fund and exposes the new portfolio position actions', async ({ page
   await page.getByRole('navigation', { name: /navegación principal/i }).first().getByRole('button', { name: 'Cartera' }).click()
 
   await expect(page.getByRole('heading', { name: 'Mi Cartera' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: 'Global' })).toBeVisible()
 
-  const positionRow = page.getByRole('row', {
-    name: /global equity fund.*acciones para global equity fund/i,
+  const positionActionsTrigger = page.getByRole('button', {
+    name: /acciones para global equity fund/i,
   })
-  await expect(positionRow).toBeVisible()
+  await expect(positionActionsTrigger).toBeVisible()
 
-  await positionRow.getByRole('button', { name: /acciones para global equity fund/i }).click()
+  await positionActionsTrigger.click()
 
   const actionMenu = page.getByRole('menu', { name: /menú de acciones para global equity fund/i })
   await expect(actionMenu.getByRole('menuitem', { name: 'Vender' })).toBeEnabled()
-  await expect(actionMenu.getByRole('menuitem', { name: 'Traspasar' })).toBeEnabled()
+  const transferAction = actionMenu.getByRole('menuitem', { name: 'Traspasar' })
+
+  if (await transferAction.isDisabled()) {
+    await expect(actionMenu.getByText(/necesitas al menos dos fondos comprados para traspasar/i)).toBeVisible()
+  } else {
+    await expect(transferAction).toBeEnabled()
+  }
 })

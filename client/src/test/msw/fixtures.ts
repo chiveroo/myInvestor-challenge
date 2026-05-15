@@ -32,18 +32,21 @@ export const mockPortfolio: PortfolioPosition[] = [
     id: 'portfolio-2',
     name: 'Renta Variable Global',
     quantity: 14.24,
+    category: 'GLOBAL',
     totalValue: { amount: 4250.18, currency: 'EUR' },
   },
   {
     id: 'portfolio-1',
     name: 'Alpha Strategy Fund',
     quantity: 8.5,
+    category: 'TECH',
     totalValue: { amount: 2100, currency: 'EUR' },
   },
   {
     id: 'portfolio-3',
     name: 'US Opportunities',
     quantity: 5.2,
+    category: 'GLOBAL',
     totalValue: { amount: 930.4, currency: 'USD' },
   },
 ]

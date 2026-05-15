@@ -98,8 +98,18 @@ export function PortfolioView() {
           aria-labelledby="portfolio-tab-funds"
           $stale={isFetching}
         >
-          <PortfolioDesktopTable positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
-          <PortfolioMobileList positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
+          <PortfolioDesktopTable
+            groupedPositions={data.groupedData}
+            allPositions={data.data}
+            onSell={handleSell}
+            onTransfer={handleTransfer}
+          />
+          <PortfolioMobileList
+            groupedPositions={data.groupedData}
+            allPositions={data.data}
+            onSell={handleSell}
+            onTransfer={handleTransfer}
+          />
         </TabPanel>
       ) : (
         <TabPanel role="tabpanel" id="portfolio-panel-orders" aria-labelledby="portfolio-tab-orders">
