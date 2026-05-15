@@ -19,6 +19,7 @@ interface SellDialogProps {
   position: PortfolioPosition
   isOpen: boolean
   onClose: () => void
+  onSuccess?: (payload: { amount: number; quantity: number }) => void
 }
 
 function normalizeSellAmount(amount: number | undefined, maxAmount: number) {
@@ -33,7 +34,7 @@ function normalizeSellAmount(amount: number | undefined, maxAmount: number) {
   return Math.min(amount, maxAmount)
 }
 
-export function SellDialog({ position, isOpen, onClose }: SellDialogProps) {
+export function SellDialog({ position, isOpen, onClose, onSuccess }: SellDialogProps) {
   const queryClient = useQueryClient()
   const addToast = useToast()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -66,9 +67,10 @@ export function SellDialog({ position, isOpen, onClose }: SellDialogProps) {
 
       return sellFund(position.id, amount / unitValue)
     },
-    onSuccess: () => {
+    onSuccess: (_, amount) => {
       queryClient.invalidateQueries({ queryKey: portfolioKeys.list() })
       queryClient.invalidateQueries({ queryKey: fundKeys.lists() })
+      onSuccess?.({ amount, quantity: unitValue ? amount / unitValue : 0 })
       addToast(`Orden de venta enviada para ${position.name}.`, 'success')
       resetForm()
       onClose()

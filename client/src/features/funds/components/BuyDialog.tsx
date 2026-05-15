@@ -44,12 +44,13 @@ interface BuyDialogProps {
   fund: Fund
   isOpen: boolean
   onClose: () => void
+  onSuccess?: (payload: { amount: number; quantity: number }) => void
 }
 
 const fmtCurrency = (amount: number, currency: string) =>
   new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(amount)
 
-export function BuyDialog({ fund, isOpen, onClose }: BuyDialogProps) {
+export function BuyDialog({ fund, isOpen, onClose, onSuccess }: BuyDialogProps) {
   const queryClient = useQueryClient()
   const addToast = useToast()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -75,9 +76,11 @@ export function BuyDialog({ fund, isOpen, onClose }: BuyDialogProps) {
       const quantity = amount / fund.value.amount
       return buyFund(fund.id, quantity)
     },
-    onSuccess: () => {
+    onSuccess: (_, amount) => {
+      const quantity = amount / fund.value.amount
       queryClient.invalidateQueries({ queryKey: fundKeys.lists() })
       queryClient.invalidateQueries({ queryKey: portfolioKeys.list() })
+      onSuccess?.({ amount, quantity })
       addToast(`Orden de compra enviada para ${fund.name}.`, 'success')
       resetForm()
       onClose()

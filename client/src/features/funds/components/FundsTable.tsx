@@ -5,6 +5,7 @@ import styled, { css, keyframes } from 'styled-components'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { useFunds } from '../hooks/useFunds'
 import { BuyDialog } from './BuyDialog'
+import { useOrderHistory } from '@/features/orders/hooks/useOrderHistory'
 import { SortableHeader } from '@/components/molecules/SortableHeader'
 import { ProfitabilityCell } from '@/components/molecules/ProfitabilityCell'
 import { ActionsMenu } from '@/components/molecules/ActionsMenu'
@@ -199,6 +200,7 @@ export function FundsTable() {
   const { sort, toggleSort } = useSortState<SortField>()
   const buyDisclosure = useDisclosure()
   const [selectedFund, setSelectedFund] = useState<Fund | null>(null)
+  const { recordBuy } = useOrderHistory()
 
   function handleBuy(fund: Fund) {
     setSelectedFund(fund)
@@ -268,6 +270,15 @@ export function FundsTable() {
           fund={selectedFund}
           isOpen={buyDisclosure.isOpen}
           onClose={buyDisclosure.close}
+          onSuccess={({ amount, quantity }) =>
+            recordBuy({
+              fundId: selectedFund.id,
+              fundName: selectedFund.name,
+              amount,
+              currency: selectedFund.value.currency,
+              quantity,
+            })
+          }
         />
       )}
     </Section>

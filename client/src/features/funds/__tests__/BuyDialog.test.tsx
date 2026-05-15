@@ -98,6 +98,20 @@ describe('BuyDialog', () => {
     })
   })
 
+  it('calls onSuccess payload only after successful purchase', async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+
+    renderWithProviders(<BuyDialog fund={fund} isOpen onClose={vi.fn()} onSuccess={onSuccess} />)
+
+    await user.type(screen.getByLabelText(/importe/i), '500')
+    await user.click(screen.getByRole('button', { name: /comprar ahora/i }))
+
+    await waitFor(() =>
+      expect(onSuccess).toHaveBeenCalledWith({ amount: 500, quantity: 500 / fund.value.amount })
+    )
+  })
+
   it('shows fund value liquidativo as reference', () => {
     renderWithProviders(<BuyDialog fund={fund} isOpen onClose={vi.fn()} />)
     expect(screen.getByText(/120,45/)).toBeInTheDocument()

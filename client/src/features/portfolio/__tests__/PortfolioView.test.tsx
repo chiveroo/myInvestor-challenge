@@ -1,12 +1,43 @@
 import { screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { PortfolioView } from '../components/PortfolioView'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { server } from '@/test/msw/server'
+import { ORDERS_STORAGE_KEY } from '@/features/orders/keys'
 
 describe('PortfolioView', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+  })
+
+  it('shows persisted orders when opening órdenes tab', async () => {
+    const user = userEvent.setup()
+
+    window.localStorage.setItem(
+      ORDERS_STORAGE_KEY,
+      JSON.stringify([
+        {
+          id: 'order-1',
+          createdAt: '2026-01-01T10:00:00.000Z',
+          type: 'transfer',
+          fundId: 'portfolio-1',
+          fundName: 'Alpha Strategy Fund',
+          quantity: 2.5,
+          destinationFundId: 'portfolio-2',
+          destinationFundName: 'Renta Variable Global',
+        },
+      ])
+    )
+
+    renderWithProviders(<PortfolioView />)
+
+    await user.click(await screen.findByRole('tab', { name: 'Órdenes' }))
+
+    expect(await screen.findByText(/2,50 participaciones a Renta Variable Global/i)).toBeInTheDocument()
+  })
+
   it('shows skeleton state while loading', () => {
     renderWithProviders(<PortfolioView />)
 
@@ -16,7 +47,7 @@ describe('PortfolioView', () => {
     expect(screen.queryByRole('button', { name: /acciones para alpha strategy fund/i })).not.toBeInTheDocument()
   })
 
-  it('renders tabs without the cartera title and keeps fondos active while órdenes is disabled', async () => {
+  it('renders tabs without the cartera title and keeps fondos active by default', async () => {
     renderWithProviders(<PortfolioView />)
 
     await screen.findByRole('tab', { name: 'Fondos' })
@@ -34,7 +65,7 @@ describe('PortfolioView', () => {
     const ordersIndicatorSlot = within(ordersTabStack).getByTestId('tab-indicator-slot')
 
     expect(fundsTab).toHaveAttribute('aria-selected', 'true')
-    expect(ordersTab).toBeDisabled()
+    expect(ordersTab).toBeEnabled()
     expect(within(fundsTabStack).getByText('Fondos')).toBeInTheDocument()
     expect(within(ordersTabStack).getByText('Órdenes')).toBeInTheDocument()
     expect(within(fundsIndicatorSlot).getByTestId('active-tab-indicator')).toBeInTheDocument()
@@ -43,18 +74,18 @@ describe('PortfolioView', () => {
     expect(screen.getByRole('tabpanel', { name: 'Fondos' })).toBeInTheDocument()
   })
 
-  it('keeps fondos selected when órdenes is unavailable', async () => {
+  it('switches to órdenes tab when selected', async () => {
     const user = userEvent.setup()
 
     renderWithProviders(<PortfolioView />)
 
-    const fundsTab = await screen.findByRole('tab', { name: 'Fondos' })
+    await screen.findByRole('tab', { name: 'Fondos' })
     const ordersTab = screen.getByRole('tab', { name: 'Órdenes' })
 
     await user.click(ordersTab)
 
-    expect(fundsTab).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByRole('tabpanel', { name: 'Fondos' })).toBeInTheDocument()
+    expect(ordersTab).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tabpanel', { name: 'Órdenes' })).toBeInTheDocument()
   })
 
   it('renders sorted positions from the portfolio', async () => {

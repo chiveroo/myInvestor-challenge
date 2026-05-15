@@ -65,7 +65,9 @@ yarn e2e          # Playwright (smoke + a11y con axe)
 
 ### Tarea 3 — Detalle de cartera
 
-- Pestañas "Fondos" / "Órdenes" (la de Órdenes queda como placeholder — ver mejoras)
+- Pestañas "Fondos" / "Órdenes" totalmente operativas
+- Historial de órdenes persistido en `localStorage` (`myinvestor_orders`) y sincronizado con React Query
+- Registro de compras, ventas y traspasos únicamente tras mutaciones exitosas (`onSuccess`)
 - ✨ **Bonus:** Diseño responsive
 - Action menu con "Vender" y "Traspasar"
 
@@ -158,18 +160,16 @@ El theme está **tipado** vía `styled.d.ts` con module augmentation, así style
 
 Por orden de prioridad:
 
-1. **Histórico de órdenes** — La pestaña "Órdenes" del detalle de cartera queda como placeholder. La forma natural sería un `useOrderHistory` hook con persistencia (localStorage o backend), feed cronológico con filtros por tipo (compra/venta/traspaso).
+1. **Agrupación por categoría en cartera** — La cartera ya se muestra ordenada alfabéticamente; faltaría enriquecerla con categorías reales sin inferirlas por nombre.
 
-2. **Agrupación por categoría en cartera** — La cartera ya se muestra ordenada alfabéticamente; faltaría enriquecerla con categorías reales sin inferirlas por nombre.
+2. **Swipe actions en móvil** — Bonus de la cartera. Implementarlo con un gesture handler tipo `framer-motion` o `react-swipeable`.
 
-3. **Swipe actions en móvil** — Bonus de la cartera. Implementarlo con un gesture handler tipo `framer-motion` o `react-swipeable`.
+3. **Skeleton loaders más finos** — Hoy hay skeleton en la tabla de fondos; faltarían en cartera, en el dialog de compra al precargar el fondo, etc.
 
-4. **Skeleton loaders más finos** — Hoy hay skeleton en la tabla de fondos; faltarían en cartera, en el dialog de compra al precargar el fondo, etc.
+4. **Más cobertura E2E** — Ahora hay un smoke + axe. Faltarían escenarios de compra/venta/traspaso end-to-end con backend real.
 
-5. **Más cobertura E2E** — Ahora hay un smoke + axe. Faltarían escenarios de compra/venta/traspaso end-to-end con backend real.
+5. **Internacionalización** — Todo el texto está en español hardcoded. Si esto fuese a escalar internacionalmente, extraería a `i18next` con namespaces por feature.
 
-6. **Internacionalización** — Todo el texto está en español hardcoded. Si esto fuese a escalar internacionalmente, extraería a `i18next` con namespaces por feature.
+6. **Error boundary global** — Hoy los errores de query se manejan a nivel de componente. Un `<ErrorBoundary>` raíz con reporting a Sentry sería el siguiente paso.
 
-7. **Error boundary global** — Hoy los errores de query se manejan a nivel de componente. Un `<ErrorBoundary>` raíz con reporting a Sentry sería el siguiente paso.
-
-8. **CI/CD** — Pipeline de GitHub Actions corriendo `lint + typecheck + test + e2e` en cada PR, con preview deployments.
+7. **CI/CD** — Pipeline de GitHub Actions corriendo `lint + typecheck + test + e2e` en cada PR, con preview deployments.

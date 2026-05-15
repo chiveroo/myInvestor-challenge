@@ -118,4 +118,32 @@ describe('TransferDialog', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: portfolioKeys.list() })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: fundKeys.lists() })
   })
+
+  it('calls onSuccess payload after successful transfer', async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ThemeProvider theme={theme}>
+          <ToastProvider>
+            <TransferDialog positions={mockPortfolio} position={sourcePosition} isOpen onClose={vi.fn()} onSuccess={onSuccess} />
+          </ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    )
+
+    await user.selectOptions(screen.getByRole('combobox', { name: /fondo de destino/i }), mockPortfolio[2]!.id)
+    await user.clear(screen.getByLabelText(/participaciones a traspasar/i))
+    await user.type(screen.getByLabelText(/participaciones a traspasar/i), '3.25')
+    await user.click(screen.getByRole('button', { name: /traspasar ahora/i }))
+
+    await waitFor(() =>
+      expect(onSuccess).toHaveBeenCalledWith({
+        quantity: 3.25,
+        destinationFundId: mockPortfolio[2]!.id,
+        destinationFundName: mockPortfolio[2]!.name,
+      })
+    )
+  })
 })

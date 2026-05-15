@@ -100,4 +100,25 @@ describe('SellDialog', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: portfolioKeys.list() })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: fundKeys.lists() })
   })
+
+  it('calls onSuccess payload after successful sell', async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ThemeProvider theme={theme}>
+          <ToastProvider>
+            <SellDialog position={position} isOpen onClose={vi.fn()} onSuccess={onSuccess} />
+          </ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    )
+
+    await user.type(screen.getByLabelText(/importe/i), '1050')
+    await user.click(screen.getByRole('button', { name: /vender ahora/i }))
+
+    await waitFor(() =>
+      expect(onSuccess).toHaveBeenCalledWith({ amount: 1050, quantity: 1050 / (position.totalValue.amount / position.quantity) })
+    )
+  })
 })

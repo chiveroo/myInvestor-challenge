@@ -63,3 +63,34 @@ export interface SortState {
   field: SortField
   direction: SortDirection
 }
+
+interface OrderHistoryBase {
+  id: string
+  createdAt: string
+  type: 'buy' | 'sell' | 'transfer'
+  fundId: string
+  fundName: string
+}
+
+export interface BuyOrderHistoryEntry extends OrderHistoryBase {
+  type: 'buy'
+  amount: number
+  currency: Currency
+  quantity?: number
+}
+
+export interface SellOrderHistoryEntry extends OrderHistoryBase {
+  type: 'sell'
+  amount: number
+  currency: Currency
+  quantity?: number
+}
+
+export interface TransferOrderHistoryEntry extends OrderHistoryBase {
+  type: 'transfer'
+  quantity: number
+  destinationFundId: string
+  destinationFundName: string
+}
+
+export type OrderHistoryEntry = BuyOrderHistoryEntry | SellOrderHistoryEntry | TransferOrderHistoryEntry

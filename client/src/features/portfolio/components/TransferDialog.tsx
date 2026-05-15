@@ -19,6 +19,7 @@ interface TransferDialogProps {
   positions: PortfolioPosition[]
   isOpen: boolean
   onClose: () => void
+  onSuccess?: (payload: { quantity: number; destinationFundId: string; destinationFundName: string }) => void
 }
 
 function normalizeTransferQuantity(quantity: number | undefined, maxQuantity: number) {
@@ -44,7 +45,7 @@ function parseQuantity(value: string) {
   return Number.isNaN(parsed) ? undefined : parsed
 }
 
-export function TransferDialog({ position, positions, isOpen, onClose }: TransferDialogProps) {
+export function TransferDialog({ position, positions, isOpen, onClose, onSuccess }: TransferDialogProps) {
   const queryClient = useQueryClient()
   const addToast = useToast()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -88,6 +89,11 @@ export function TransferDialog({ position, positions, isOpen, onClose }: Transfe
 
       queryClient.invalidateQueries({ queryKey: portfolioKeys.list() })
       queryClient.invalidateQueries({ queryKey: fundKeys.lists() })
+      onSuccess?.({
+        quantity: variables.quantity,
+        destinationFundId: variables.destinationId,
+        destinationFundName: destination?.name ?? 'Otro fondo',
+      })
       addToast(
         `Orden de traspaso enviada de ${formatQuantity(variables.quantity)} participaciones de ${position.name} a ${destination?.name ?? 'otro fondo'}.`,
         'success'

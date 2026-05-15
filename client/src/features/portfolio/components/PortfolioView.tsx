@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import type { PortfolioPosition } from '@/types';
+import { useOrderHistory } from '@/features/orders/hooks/useOrderHistory';
+import { OrdersTab } from '@/features/orders/components/OrdersTab';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { SellDialog } from './SellDialog';
 import { TransferDialog } from './TransferDialog';
@@ -27,6 +29,8 @@ const TabPanel = styled.div<{ $stale?: boolean }>`
 
 export function PortfolioView() {
   const { data, isLoading, isError, refetch, isFetching } = usePortfolio();
+  const { orders, recordSell, recordTransfer } = useOrderHistory()
+  const [activeTab, setActiveTab] = useState<'funds' | 'orders'>('funds')
   const [selectedSellPosition, setSelectedSellPosition] = useState<PortfolioPosition | null>(null);
   const [selectedTransferPosition, setSelectedTransferPosition] = useState<PortfolioPosition | null>(null);
 
@@ -50,7 +54,7 @@ export function PortfolioView() {
     return (
       <Section>
         <Header>
-          <PortfolioTabs />
+          <PortfolioTabs activeTab={activeTab} onChangeTab={setActiveTab} />
         </Header>
         <TabPanel role="tabpanel" id="portfolio-panel-funds" aria-labelledby="portfolio-tab-funds">
           <PortfolioSkeleton />
@@ -63,7 +67,7 @@ export function PortfolioView() {
     return (
       <Section>
         <Header>
-          <PortfolioTabs />
+          <PortfolioTabs activeTab={activeTab} onChangeTab={setActiveTab} />
         </Header>
         <PortfolioErrorState onRetry={() => refetch()} />
       </Section>
@@ -74,7 +78,7 @@ export function PortfolioView() {
     return (
       <Section>
         <Header>
-          <PortfolioTabs />
+          <PortfolioTabs activeTab={activeTab} onChangeTab={setActiveTab} />
         </Header>
         <PortfolioEmptyState />
       </Section>
@@ -84,21 +88,40 @@ export function PortfolioView() {
   return (
     <Section>
       <Header>
-        <PortfolioTabs />
+        <PortfolioTabs activeTab={activeTab} onChangeTab={setActiveTab} />
       </Header>
 
-      <TabPanel
-        role="tabpanel"
-        id="portfolio-panel-funds"
-        aria-labelledby="portfolio-tab-funds"
-        $stale={isFetching}
-      >
-        <PortfolioDesktopTable positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
-        <PortfolioMobileList positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
-      </TabPanel>
+      {activeTab === 'funds' ? (
+        <TabPanel
+          role="tabpanel"
+          id="portfolio-panel-funds"
+          aria-labelledby="portfolio-tab-funds"
+          $stale={isFetching}
+        >
+          <PortfolioDesktopTable positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
+          <PortfolioMobileList positions={data.data} onSell={handleSell} onTransfer={handleTransfer} />
+        </TabPanel>
+      ) : (
+        <TabPanel role="tabpanel" id="portfolio-panel-orders" aria-labelledby="portfolio-tab-orders">
+          <OrdersTab orders={orders} />
+        </TabPanel>
+      )}
 
       {selectedSellPosition ? (
-        <SellDialog position={selectedSellPosition} isOpen onClose={handleCloseSellDialog} />
+        <SellDialog
+          position={selectedSellPosition}
+          isOpen
+          onClose={handleCloseSellDialog}
+          onSuccess={({ amount, quantity }) =>
+            recordSell({
+              fundId: selectedSellPosition.id,
+              fundName: selectedSellPosition.name,
+              amount,
+              currency: selectedSellPosition.totalValue.currency,
+              quantity,
+            })
+          }
+        />
       ) : null}
 
       {selectedTransferPosition ? (
@@ -107,6 +130,15 @@ export function PortfolioView() {
           positions={data.data}
           isOpen
           onClose={handleCloseTransferDialog}
+          onSuccess={({ quantity, destinationFundId, destinationFundName }) =>
+            recordTransfer({
+              fundId: selectedTransferPosition.id,
+              fundName: selectedTransferPosition.name,
+              quantity,
+              destinationFundId,
+              destinationFundName,
+            })
+          }
         />
       ) : null}
     </Section>
