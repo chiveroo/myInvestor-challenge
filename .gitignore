@@ -48,5 +48,8 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Gentle AI / SDD local artifacts
+.atl/
+
 # Lock (yarn.lock intentionally tracked)
 package-lock.json
