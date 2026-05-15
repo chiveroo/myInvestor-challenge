@@ -12,6 +12,7 @@ import { theme } from '@/styles/theme'
 import { ToastProvider } from '@/components/organisms/ToastProvider'
 import { portfolioKeys } from '@/features/portfolio/keys'
 import { fundKeys } from '../keys'
+import { expectNoA11yViolations } from '@/test/axe'
 
 const fund = mockFunds[0]!
 
@@ -175,5 +176,13 @@ describe('BuyDialog', () => {
     closeBtn.focus()
     await user.keyboard('{Enter}')
     expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  it('has no accessibility violations when opened', async () => {
+    const { baseElement } = renderWithProviders(<BuyDialog fund={fund} isOpen onClose={vi.fn()} />)
+
+    await screen.findByRole('dialog', { name: /comprar fondo/i })
+
+    await expectNoA11yViolations(baseElement)
   })
 })

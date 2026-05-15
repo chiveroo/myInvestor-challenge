@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { server } from '@/test/msw/server'
 import { renderWithProviders } from '@/test/renderWithProviders'
+import { expectNoA11yViolations } from '@/test/axe'
 import { FundsTable } from '../components/FundsTable'
 
 describe('FundsTable', () => {
@@ -79,5 +80,13 @@ describe('FundsTable', () => {
     await screen.findByText('Global Equity Fund')
     expect(screen.getByText(/página 1 de 2/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /página siguiente/i })).toBeInTheDocument()
+  })
+
+  it('has no accessibility violations after loading data', async () => {
+    const { container } = renderWithProviders(<FundsTable />)
+
+    await screen.findByText('Global Equity Fund')
+
+    await expectNoA11yViolations(container)
   })
 })

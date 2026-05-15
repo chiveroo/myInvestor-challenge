@@ -1493,7 +1493,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axe-core@npm:~4.11.4":
+"axe-core@npm:^4.11.4, axe-core@npm:~4.11.4":
   version: 4.11.4
   resolution: "axe-core@npm:4.11.4"
   checksum: 10c0/c4aa83fc3eac5f7a0d0cb1a28f9d073acf0c06ce8daacc38608faa278c57ce084c028c850746b98817ae4c101c30c1a32e95ea34748c4b4c7419b9b81221ef84
@@ -1604,6 +1604,7 @@ __metadata:
     "@types/react-is": "npm:^19"
     "@vitejs/plugin-react": "npm:^6.0.1"
     "@vitest/coverage-v8": "npm:^4.1.6"
+    axe-core: "npm:^4.11.4"
     eslint: "npm:^10.3.0"
     eslint-plugin-react-hooks: "npm:^7.1.1"
     eslint-plugin-react-refresh: "npm:^0.5.2"

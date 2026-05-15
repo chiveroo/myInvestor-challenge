@@ -245,7 +245,7 @@ export function FundsTable() {
               <SortableHeader label="1A"         field="profitability.oneYear"     currentSort={sort} onSort={handleSort} align="center" />
               <SortableHeader label="3A"         field="profitability.threeYears"  currentSort={sort} onSort={handleSort} align="center" />
               <SortableHeader label="5A"         field="profitability.fiveYears"   currentSort={sort} onSort={handleSort} align="center" />
-              <StickyTh $compact aria-label="Acciones" />
+              <StickyTh $compact scope="col">Acciones</StickyTh>
             </tr>
           </Thead>
           <tbody>

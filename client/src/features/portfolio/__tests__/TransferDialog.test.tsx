@@ -11,6 +11,7 @@ import { mockPortfolio } from '@/test/msw/fixtures'
 import { portfolioKeys } from '../keys'
 import { fundKeys } from '@/features/funds/keys'
 import { TransferDialog } from '../components/TransferDialog'
+import { expectNoA11yViolations } from '@/test/axe'
 
 const sourcePosition = mockPortfolio[1]!
 
@@ -145,5 +146,13 @@ describe('TransferDialog', () => {
         destinationFundName: mockPortfolio[2]!.name,
       })
     )
+  })
+
+  it('has no accessibility violations when opened', async () => {
+    const { baseElement } = renderTransferDialogWithClient(new QueryClient())
+
+    await screen.findByRole('dialog', { name: /traspasar fondo/i })
+
+    await expectNoA11yViolations(baseElement)
   })
 })

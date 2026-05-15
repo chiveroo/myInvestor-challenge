@@ -11,6 +11,7 @@ import { mockPortfolio } from '@/test/msw/fixtures'
 import { portfolioKeys } from '../keys'
 import { SellDialog } from '../components/SellDialog'
 import { fundKeys } from '@/features/funds/keys'
+import { expectNoA11yViolations } from '@/test/axe'
 
 const position = mockPortfolio[1]!
 
@@ -120,5 +121,13 @@ describe('SellDialog', () => {
     await waitFor(() =>
       expect(onSuccess).toHaveBeenCalledWith({ amount: 1050, quantity: 1050 / (position.totalValue.amount / position.quantity) })
     )
+  })
+
+  it('has no accessibility violations when opened', async () => {
+    const { baseElement } = renderSellDialogWithClient(new QueryClient())
+
+    await screen.findByRole('dialog', { name: /vender fondo/i })
+
+    await expectNoA11yViolations(baseElement)
   })
 })

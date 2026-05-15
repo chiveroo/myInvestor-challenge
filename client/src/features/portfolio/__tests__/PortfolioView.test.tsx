@@ -6,6 +6,7 @@ import { PortfolioView } from '../components/PortfolioView'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { server } from '@/test/msw/server'
 import { ORDERS_STORAGE_KEY } from '@/features/orders/keys'
+import { expectNoA11yViolations } from '@/test/axe'
 
 describe('PortfolioView', () => {
   beforeEach(() => {
@@ -91,8 +92,15 @@ describe('PortfolioView', () => {
   it('renders positions alphabetically inside each category group', async () => {
     renderWithProviders(<PortfolioView />)
 
-    const groups = await screen.findAllByRole('group')
-    const names = groups.map((group) => group.getAttribute('aria-label')?.replace('Posición en ', ''))
+    await screen.findAllByText('Renta Variable Global')
+    const articles = await screen.findAllByRole('article')
+    const names = articles.map((article) => {
+      const text = article.textContent ?? ''
+      if (text.includes('Renta Variable Global')) return 'Renta Variable Global'
+      if (text.includes('US Opportunities')) return 'US Opportunities'
+      if (text.includes('Alpha Strategy Fund')) return 'Alpha Strategy Fund'
+      return undefined
+    })
 
     expect(names).toEqual([
       'Renta Variable Global',
@@ -116,7 +124,7 @@ describe('PortfolioView', () => {
   it('shows derived unit value for each portfolio position on mobile without the helper label', async () => {
     renderWithProviders(<PortfolioView />)
 
-    const card = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    const card = await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
 
     expect(within(card).getByText(/247,06/u)).toBeInTheDocument()
     expect(within(card).queryByText(/valor por participación/i)).not.toBeInTheDocument()
@@ -143,7 +151,7 @@ describe('PortfolioView', () => {
 
     renderWithProviders(<PortfolioView />)
 
-    const card = await screen.findByRole('group', { name: /posición en cash reserve/i })
+    const card = await screen.findByRole('article', { name: /posición en cash reserve/i })
 
     expect(within(card).queryByText(/valor por participación/i)).not.toBeInTheDocument()
   })
@@ -153,7 +161,7 @@ describe('PortfolioView', () => {
 
     renderWithProviders(<PortfolioView />)
 
-    const firstCard = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    const firstCard = await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
     await user.click(within(firstCard).getByRole('button', { name: /acciones para alpha strategy fund/i }))
 
     const menu = await screen.findByRole('menu', { name: /menú de acciones para alpha strategy fund/i })
@@ -189,7 +197,7 @@ describe('PortfolioView', () => {
 
     renderWithProviders(<PortfolioView />)
 
-    const card = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    const card = await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
     const trigger = within(card).getByRole('button', { name: /acciones para alpha strategy fund/i })
 
     expect(screen.queryByRole('menu', { name: /menú de acciones para alpha strategy fund/i })).not.toBeInTheDocument()
@@ -211,7 +219,7 @@ describe('PortfolioView', () => {
 
     renderWithProviders(<PortfolioView />)
 
-    const firstCard = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    const firstCard = await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
 
     await user.click(within(firstCard).getByRole('button', { name: /acciones para alpha strategy fund/i }))
 
@@ -245,7 +253,7 @@ describe('PortfolioView', () => {
 
     renderWithProviders(<PortfolioView />)
 
-    const onlyCard = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    const onlyCard = await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
 
     await user.click(within(onlyCard).getByRole('button', { name: /acciones para alpha strategy fund/i }))
 
@@ -259,7 +267,7 @@ describe('PortfolioView', () => {
   it('renders each mobile position with left name, right value block, and far-right menu', async () => {
     renderWithProviders(<PortfolioView />)
 
-    const card = await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    const card = await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
     const summary = within(card).getByLabelText(/resumen de alpha strategy fund/i)
 
     expect(within(card).queryByText('Participaciones')).not.toBeInTheDocument()
@@ -273,8 +281,16 @@ describe('PortfolioView', () => {
   it('does not show obsolete swipe guidance copy in mobile cards', async () => {
     renderWithProviders(<PortfolioView />)
 
-    await screen.findByRole('group', { name: /posición en alpha strategy fund/i })
+    await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
 
     expect(screen.queryByText(/desliza para ver acciones/i)).not.toBeInTheDocument()
+  })
+
+  it('has no accessibility violations after grouped portfolio loads', async () => {
+    const { container } = renderWithProviders(<PortfolioView />)
+
+    await screen.findByRole('article', { name: /posición en alpha strategy fund/i })
+
+    await expectNoA11yViolations(container)
   })
 })

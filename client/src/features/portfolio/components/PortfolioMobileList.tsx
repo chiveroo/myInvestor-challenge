@@ -129,7 +129,7 @@ function PortfolioMobileRow({
   const mobileUnitValueLabel = getMobileUnitValueLabel(position);
 
   return (
-    <MobileCard role="group" aria-label={`Posición en ${position.name}`}>
+    <MobileCard aria-label={`Posición en ${position.name}`}>
       <MobileAvatar aria-hidden="true">
         <LineChart size={20} />
       </MobileAvatar>

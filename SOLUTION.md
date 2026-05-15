@@ -160,6 +160,8 @@ Con esta decisión, `PortfolioPosition` incluye `category: Category` y la UI sol
 - Iconos decorativos con `aria-hidden="true"`; icon-buttons siempre con `aria-label`
 - Focus rings visibles vía `:focus-visible` con tokens dedicados
 - Auditoría automatizada con axe-core en Playwright (`tests/e2e/app-smoke.spec.ts`)
+- Tests de a11y en Vitest con `axe-core` sobre componentes/vistas clave (`FundsTable`, `PortfolioView`, `BuyDialog`, `SellDialog`, `TransferDialog`) para detectar regresiones semánticas temprano.
+- Limitación conocida en jsdom: checks de contraste/layout/focus trap nativo no son fiables aquí; se mantienen cubiertos en E2E real-browser con Playwright + axe.
 
 ### Testing
 
