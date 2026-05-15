@@ -21,11 +21,7 @@ interface SellDialogProps {
   onClose: () => void
 }
 
-interface FormValues {
-  amount: number | undefined
-}
-
-function buildSchema(maxAmount: number) {
+export function buildSellDialogSchema(maxAmount: number) {
   return z.object({
     amount: z
       .number({ error: 'Introduce un importe válido.' })
@@ -47,6 +43,8 @@ function buildSchema(maxAmount: number) {
   })
 }
 
+export type SellDialogFormValues = z.input<ReturnType<typeof buildSellDialogSchema>>
+
 function normalizeSellAmount(amount: number | undefined, maxAmount: number) {
   if (amount === undefined || Number.isNaN(amount)) {
     return undefined
@@ -65,7 +63,7 @@ export function SellDialog({ position, isOpen, onClose }: SellDialogProps) {
   const [serverError, setServerError] = useState<string | null>(null)
   const maxAmount = position.totalValue.amount
   const unitValue = getUnitValueAmount(position)
-  const schema = buildSchema(maxAmount)
+  const schema = buildSellDialogSchema(maxAmount)
   const amountHintId = 'sell-amount-hint'
 
   const resetForm = () => reset({ amount: undefined })
@@ -76,7 +74,7 @@ export function SellDialog({ position, isOpen, onClose }: SellDialogProps) {
     formState: { errors, isValid },
     reset,
     setValue,
-  } = useForm<FormValues>({
+  } = useForm<SellDialogFormValues>({
     resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {

@@ -21,11 +21,6 @@ interface TransferDialogProps {
   onClose: () => void
 }
 
-interface FormValues {
-  quantity: number | undefined
-  destinationId: string
-}
-
 function normalizeTransferQuantity(quantity: number | undefined, maxQuantity: number) {
   if (quantity === undefined || Number.isNaN(quantity)) {
     return undefined
@@ -49,7 +44,7 @@ function parseQuantity(value: string) {
   return Number.isNaN(parsed) ? undefined : parsed
 }
 
-function buildSchema(maxQuantity: number, fromFundId: string, destinationIds: string[]) {
+export function buildTransferDialogSchema(maxQuantity: number, fromFundId: string, destinationIds: string[]) {
   return z.object({
     quantity: z
       .number({ error: 'Introduce un importe válido.' })
@@ -85,6 +80,8 @@ function buildSchema(maxQuantity: number, fromFundId: string, destinationIds: st
   })
 }
 
+export type TransferDialogFormValues = z.input<ReturnType<typeof buildTransferDialogSchema>>
+
 export function TransferDialog({ position, positions, isOpen, onClose }: TransferDialogProps) {
   const queryClient = useQueryClient()
   const addToast = useToast()
@@ -92,7 +89,7 @@ export function TransferDialog({ position, positions, isOpen, onClose }: Transfe
   const maxQuantity = position.quantity
   const destinationOptions = getTransferDestinationPositions(position, positions)
   const defaultDestinationId = destinationOptions[0]?.id ?? ''
-  const schema = buildSchema(
+  const schema = buildTransferDialogSchema(
     maxQuantity,
     position.id,
     destinationOptions.map(destination => destination.id),
@@ -106,7 +103,7 @@ export function TransferDialog({ position, positions, isOpen, onClose }: Transfe
     formState: { errors, isValid },
     reset,
     setValue,
-  } = useForm<FormValues>({
+  } = useForm<TransferDialogFormValues>({
     resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
