@@ -2,6 +2,10 @@
 
 Solución a la prueba técnica de Front-end. La aplicación cubre el flujo completo de inversión en fondos: listado, compra, detalle de cartera, venta y traspaso entre fondos.
 
+**Autor:** José Ignacio Infante García  
+**LinkedIn:** [joseignacioinfantegar](https://www.linkedin.com/in/joseignacioinfantegar/)  
+**Email:** [joseignacioinfantegar@gmail.com](mailto:joseignacioinfantegar@gmail.com)
+
 > El enunciado original sigue disponible en [`README.md`](./README.md).
 
 ---
